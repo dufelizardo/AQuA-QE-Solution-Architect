@@ -74,7 +74,7 @@ Camadas do código (`src/aqua_qe_solution_architect/`):
 
 Deliberadamente **não existem** nesta fase: uma camada de geração/renderização de diagramas C4, um parser de contratos de API/OpenAPI, parsers de UML/BPMN/Swagger/schema de banco, e as 7 categorias adicionais de patterns (design/integration/distributed/cloud/security/data) + biblioteca de anti-patterns que fizeram parte da especificação original completa do agente. Cada um desses itens tem valor real, mas depende de um consumidor real ainda inexistente (mesmo princípio de "não construir sem consumidor" já aplicado à camada `Feature` do Product Owner) — ver seção 11.
 
-## 5. As 16 skills
+## 5. As 19 skills
 
 Skills sem LLM (Python puro, determinísticas):
 
@@ -92,7 +92,8 @@ Skills com LLM revisor independente (`OLLAMA_REVIEW_MODEL`, padrão `phi4` — d
 
 Skills de I/O externo:
 
-- `read_text_file` (disco), `read_jira_issue`/`read_confluence_page` (leitura, Jira/Confluence Cloud REST API — **nenhuma escrita nesta fase**, diferente do Product Owner, que também cria/atualiza tickets).
+- `read_text_file` (disco), `read_jira_issue`/`read_confluence_page` (leitura, Jira/Confluence Cloud REST API — **nenhuma escrita no Jira nesta fase**, diferente do Product Owner, que também cria/atualiza tickets).
+- `get_confluence_publish_location`, `create_confluence_page`, `update_confluence_page` — **escrita** no Confluence Cloud (seção 8), sempre atrás de confirmação humana explícita no CLI.
 
 Detalhamento completo de entrada/saída/erros de cada skill em `docs/agent/skills.md`.
 
@@ -111,11 +112,12 @@ O mesmo princípio central do Product Owner se aplica aqui: quando a revisão ap
 
 - **Entrada única, artefato único** (`run.py`, sem `--modo`) — diferente de PM/PO, este agente não tem múltiplos modos de operação nesta fase: recebe uma fonte (`--arquivo`/`--texto`/`--jira`/`--confluence`) e produz um único Solution Design Document. O CLI sempre pergunta "Aceitar este Solution Design?" antes de exportar — só recusar o aceite impede a exportação.
 - **`--refinar`** — liga o ciclo de perguntas/refinamento (seção 6), quando o Solution Design não sai aprovado na revisão, antes do aceite final (que é sempre perguntado, com ou sem esta flag).
+- **`--publicar-confluence`/`--atualizar-confluence`** (mutuamente exclusivos, só válidos com `--confluence`) — rodam depois do aceite; ver seção 8.
 
 ## 8. Integrações reais
 
 - **Jira Cloud** (REST API v3) — apenas leitura (`read_jira_issue`, convertendo Atlassian Document Format para texto puro). Sem escrita nesta fase — não há hoje um caso de uso real de write-back a partir de um Solution Design.
-- **Confluence Cloud** (REST API v1) — apenas leitura de página (`read_confluence_page`), convertendo o storage format (XHTML) para texto puro via `html.parser.HTMLParser` da stdlib (sem dependência nova), mesmas credenciais do Jira.
+- **Confluence Cloud** (REST API v1) — leitura de página (`read_confluence_page`, convertendo o storage format XHTML para texto puro via `html.parser.HTMLParser` da stdlib) **e escrita** (`create_confluence_page`/`update_confluence_page`, convertendo Markdown de volta para storage format via um conversor minimalista — só trata `#`/`##`/`###` e listas `- `, o suficiente para a saída de `format_solution_design_markdown`). Escrita sempre atrás de confirmação humana explícita (RULE-SA-10) e sempre como página **irmã** da página de origem do PRD: `get_confluence_publish_location` deriva o espaço e o ancestral imediato diretamente da página de origem (nenhuma variável de ambiente nova é necessária, diferente de PM/PO, que exigem `CONFLUENCE_SPACE_KEY`) — garante por construção que o Solution Architecture Document nunca é publicado em local arbitrário nem sobrescreve o PRD.
 
 ## 9. Stack técnico
 
@@ -126,7 +128,7 @@ O mesmo princípio central do Product Owner se aplica aqui: quando a revisão ap
 
 ## 10. Qualidade e cobertura de testes
 
-46 testes automatizados cobrem todos os módulos implementados, todos com chamadas a Ollama/Jira/Confluence mockadas — rápidos, determinísticos, sem dependência de infraestrutura externa para rodar em CI. A avaliação do agente em produção combina três camadas que nunca se substituem (`docs/agent/evaluation.md`):
+59 testes automatizados cobrem todos os módulos implementados, todos com chamadas a Ollama/Jira/Confluence mockadas — rápidos, determinísticos, sem dependência de infraestrutura externa para rodar em CI. A avaliação do agente em produção combina três camadas que nunca se substituem (`docs/agent/evaluation.md`):
 
 1. Checklist automático (`validate_solution_design`) — sem LLM.
 2. LLM-como-juiz (`review_solution_design`) — modelo diferente do gerador.
@@ -140,7 +142,7 @@ O usuário forneceu, ao especificar este agente, uma visão de produto madura e 
 - **Contratos de API/OpenAPI/AsyncAPI/GraphQL** — nenhum parser ou gerador de contrato existe nesta fase.
 - **Parsers de UML/BPMN/Swagger/schema de banco** — como fontes de entrada adicionais.
 - **As 7 categorias adicionais de patterns** (design/integration/distributed/cloud/security/data) **e a biblioteca de anti-patterns** — só o catálogo de padrões arquiteturais (a categoria mais diretamente necessária para `identify_architecture_pattern`) foi construído nesta fase.
-- **Integrações reais de escrita** — Jira/Confluence write-back, GitHub, GitLab, Kubernetes, Terraform, provedores de nuvem (AWS/Azure/GCP) — nenhuma tem hoje um consumidor real dentro do escopo da Fase 1.
+- **Integrações reais de escrita** — Jira write-back, GitHub, GitLab, Kubernetes, Terraform, provedores de nuvem (AWS/Azure/GCP) — nenhuma tem hoje um consumidor real dentro do escopo da Fase 1 (Confluence write-back já foi implementado, seção 8).
 - **`--sdd-existente`** (parser inverso do Markdown exportado) — mesmo padrão em que `--epic-existente`/`--story-existente` foram construídos como incremento *posterior* às features base no Product Owner, não desde o início.
 - **GR-SA-5** (compatibilidade com padrões tecnológicos da organização) — não há hoje uma fonte de entrada de "padrões da empresa"; guardrail documentado, mas só totalmente verificável quando essa fonte existir.
 - **RAG/memória de projeto** (`docs/agent/memory.md`) — `knowledge/methodology/` tem apenas 3 arquivos nesta fase, pequenos o suficiente para caber direto no prompt sem busca semântica; RAG fica para quando o catálogo de patterns crescer o suficiente para não caber mais.

@@ -28,6 +28,7 @@ Gerar um Solution Design Document (SDD) a partir de um PRD (ou fonte de requisit
 - Validar a saída contra um checklist automático antes de apresentá-la.
 - Suportar ciclo de refinamento humano-no-loop (perguntas de esclarecimento → resposta humana → refino).
 - Exportar o resultado em Markdown.
+- Publicar (ou atualizar) o resultado como página no Confluence Cloud, sempre como irmã da página de origem do PRD e sempre atrás de confirmação humana explícita.
 
 ## Fora de escopo (Fase 1 — ver WHITEPAPER seção 11 para detalhe)
 
@@ -35,7 +36,7 @@ Gerar um Solution Design Document (SDD) a partir de um PRD (ou fonte de requisit
 - Contratos de API (OpenAPI/Swagger), geração ou leitura.
 - Parsers de UML, BPMN, Swagger, schema de banco de dados.
 - Integrações reais com GitHub, GitLab, Azure DevOps, Kubernetes, Terraform, provedores de nuvem.
-- Escrita/publicação em Jira ou Confluence (o agente só lê essas fontes).
+- Escrita/publicação em Jira (o agente só lê essa fonte). Confluence ganhou escrita gated (`--publicar-confluence`/`--atualizar-confluence`, sempre atrás de confirmação humana, publicando como página irmã do PRD de origem — ver `rules.md` RULE-SA-10).
 - Carregar um SDD já existente para continuar dali (`--sdd-existente`) — parser inverso do exportador.
 - As 7 categorias adicionais de patterns (design/integration/distributed/cloud/security/data) e `anti-patterns/`.
 - RAG/memória de projeto ou longo prazo.

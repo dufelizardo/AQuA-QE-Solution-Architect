@@ -23,7 +23,7 @@ uv run pytest tests/test_generate_solution_design_workflow.py::test_nome_do_test
 # Gerar um Solution Design a partir de um arquivo
 uv run python run.py --arquivo prd.txt --saida sdd.md
 
-# Ver todas as opções (--texto, --jira, --confluence, --refinar)
+# Ver todas as opções (--texto, --jira, --confluence, --refinar, --publicar-confluence, --atualizar-confluence)
 uv run python run.py --help
 ```
 
@@ -41,10 +41,10 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
 ```
 
 - `src/aqua_qe_solution_architect/models/` — `SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, enum `ArtifactStatus`.
-- `src/aqua_qe_solution_architect/skills/` — 16 funções de responsabilidade única (ver `docs/agent/skills.md`).
-- `src/aqua_qe_solution_architect/workflow/generate_solution_design.py` — `generate_solution_design` (gera do zero) e `finalize_solution_design` (validate→review, reaproveitável após refino).
+- `src/aqua_qe_solution_architect/skills/` — 19 funções de responsabilidade única (ver `docs/agent/skills.md`).
+- `src/aqua_qe_solution_architect/workflow/generate_solution_design.py` — `generate_solution_design` (gera do zero), `finalize_solution_design` (validate→review, reaproveitável após refino) e `refine_and_finalize_solution_design` (refina + revalida).
 - `src/aqua_qe_solution_architect/orchestrator/solution_architect.py` — ponto de entrada único, `handle_request(entrada)`.
-- `src/aqua_qe_solution_architect/services/` — integrações externas: `llm_service` (Ollama), `jira_service`/`confluence_service` (REST API + httpx, **apenas leitura**).
+- `src/aqua_qe_solution_architect/services/` — integrações externas: `llm_service` (Ollama), `jira_service` (REST API + httpx, **apenas leitura**), `confluence_service` (REST API + httpx, **leitura e escrita** — `get_page_text`/`get_page_parent_context` leem, `create_page`/`update_page` escrevem).
 
 ## Convenções críticas
 
@@ -56,11 +56,12 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
 - **Sem aprovação automática** (RULE-SA-9, guardrail transversal): nenhuma skill/workflow define `ArtifactStatus.ACCEPTED`. Esse status só é atribuído pelo CLI (`run.py`), após confirmação humana explícita no terminal — sempre pedida, com ou sem `--refinar`.
 - **Dois LLMs sempre diferentes**: `OLLAMA_MODEL` (padrão `mistral`) gera; `OLLAMA_REVIEW_MODEL` (padrão `phi4`) revisa. Deliberado — mitiga *self-preference bias* de um modelo aprovar a própria saída.
 - **`refine_solution_design` preserva o detalhe de campos não abordados pelas respostas do usuário** — cuidado incorporado desde o início do projeto, aprendido com um bug real corrigido em `refine_prd`/`refine_epic_metadata` no agente irmão AQuA-QE Product Owner.
-- **`jira_service`/`confluence_service` são apenas leitura nesta fase** — não há `create_*`/`update_*`. Diferente do Product Owner, que também escreve de volta nesses sistemas; aqui não existe hoje um caso de uso real que justifique isso.
+- **`jira_service` é apenas leitura nesta fase** — não há `create_*`/`update_*`. Diferente do Product Owner, que também escreve de volta no Jira; aqui não existe hoje um caso de uso real que justifique isso.
+- **`confluence_service` ganhou escrita** (`create_page`/`update_page`, portados do AQuA-QE Product Manager): publicar (`--publicar-confluence`) ou atualizar (`--atualizar-confluence`) sempre exige confirmação humana explícita no CLI (RULE-SA-10) e sempre cria a página como **irmã da página de origem do PRD** — `get_confluence_publish_location` deriva o espaço/ancestral diretamente da página de origem via `get_page_parent_context`, nunca de configuração manual. Por isso, ao contrário de PM/PO, **não há env var `CONFLUENCE_SPACE_KEY`** — o espaço é sempre derivado da fonte. Ambas as flags só são válidas com `--confluence` (sem página de origem, não há "ao lado de quem" publicar).
 - **Este agente nunca gera nem edita um PRD** (papel exclusivo do agente irmão AQuA-QE Product Manager) **e nunca gera Épicos/User Stories** (papel exclusivo do agente irmão AQuA-QE Product Owner). Consome um PRD já pronto e produz um único artefato técnico intermediário, o Solution Design Document.
 - **Testes sempre mockam** Ollama/Jira/Confluence — nenhum teste em `tests/` faz chamada real de rede. Ao adicionar um teste para uma skill/service novo, siga esse padrão.
 - **`knowledge/methodology/` tem só 3 arquivos nesta fase** (`architecture_patterns.md`, `iso25010.md`, `adr.md`), deliberadamente pequeno o suficiente para caber direto no prompt de cada skill, sem RAG. As 7 categorias adicionais de patterns + anti-patterns da especificação original completa **não** foram implementadas — ver seção 11 do `WHITEPAPER.md`.
-- **Sem `--modo`** (diferente de PM/PO): este agente produz um único tipo de artefato nesta fase, então `run.py` não tem flag de modo — só `--arquivo`/`--texto`/`--jira`/`--confluence` (mutuamente exclusivos) e `--refinar`.
+- **Sem `--modo`** (diferente de PM/PO): este agente produz um único tipo de artefato nesta fase, então `run.py` não tem flag de modo — só `--arquivo`/`--texto`/`--jira`/`--confluence` (mutuamente exclusivos), `--refinar` e `--publicar-confluence`/`--atualizar-confluence` (mutuamente exclusivos entre si).
 
 ## Onde procurar mais detalhe
 

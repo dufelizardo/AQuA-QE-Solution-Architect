@@ -74,7 +74,7 @@ Code layers (`src/aqua_qe_solution_architect/`):
 
 Deliberately **not present** in this phase: a C4 diagram generation/rendering layer, an API/OpenAPI contract parser, UML/BPMN/Swagger/DB-schema parsers, and the 7 additional pattern categories (design/integration/distributed/cloud/security/data) + anti-patterns library that were part of the agent's original full specification. Each of these has real value, but depends on a real consumer that doesn't exist yet (same "don't build without a consumer" principle already applied to the Product Owner's `Feature` layer) — see section 11.
 
-## 5. The 16 skills
+## 5. The 19 skills
 
 Skills without an LLM (pure Python, deterministic):
 
@@ -92,7 +92,8 @@ Skills with an independent reviewer LLM (`OLLAMA_REVIEW_MODEL`, default `phi4` �
 
 External I/O skills:
 
-- `read_text_file` (disk), `read_jira_issue`/`read_confluence_page` (read-only, Jira/Confluence Cloud REST API — **no writes in this phase**, unlike the Product Owner, which also creates/updates tickets).
+- `read_text_file` (disk), `read_jira_issue`/`read_confluence_page` (read-only, Jira/Confluence Cloud REST API — **no writes to Jira in this phase**, unlike the Product Owner, which also creates/updates tickets).
+- `get_confluence_publish_location`, `create_confluence_page`, `update_confluence_page` — **writes** to Confluence Cloud (section 8), always behind explicit human confirmation in the CLI.
 
 Full input/output/error detail for each skill is in `docs/agent/skills.md`.
 
@@ -111,11 +112,12 @@ The same core principle from the Product Owner applies here: when review flags a
 
 - **Single input, single artifact** (`run.py`, no `--modo`) — unlike PM/PO, this agent has no multiple operating modes in this phase: it takes one source (`--arquivo`/`--texto`/`--jira`/`--confluence`) and produces a single Solution Design Document. The CLI always asks "Accept this Solution Design?" before exporting — only declining acceptance blocks the export.
 - **`--refinar`** — turns on the question/refinement cycle (section 6), when the Solution Design isn't approved on review, before final acceptance (which is always asked, with or without this flag).
+- **`--publicar-confluence`/`--atualizar-confluence`** (mutually exclusive, only valid with `--confluence`) — run after acceptance; see section 8.
 
 ## 8. Real integrations
 
 - **Jira Cloud** (REST API v3) — read-only (`read_jira_issue`, converting Atlassian Document Format to plain text). No writes in this phase — there is no real write-back use case from a Solution Design today.
-- **Confluence Cloud** (REST API v1) — page read-only (`read_confluence_page`), converting storage format (XHTML) to plain text via the stdlib's `html.parser.HTMLParser` (no new dependency), same credentials as Jira.
+- **Confluence Cloud** (REST API v1) — page read (`read_confluence_page`, converting storage format XHTML to plain text via the stdlib's `html.parser.HTMLParser`) **and write** (`create_confluence_page`/`update_confluence_page`, converting Markdown back to storage format via a minimalist converter — only handles `#`/`##`/`###` and `- ` lists, enough for `format_solution_design_markdown`'s output). Writes are always behind explicit human confirmation (RULE-SA-10) and always create the page as a **sibling** of the PRD's source page: `get_confluence_publish_location` derives the space and immediate ancestor directly from the source page (no new environment variable needed, unlike PM/PO, which require `CONFLUENCE_SPACE_KEY`) — this guarantees by construction that the Solution Architecture Document is never published to an arbitrary location or overwriting the PRD.
 
 ## 9. Technical stack
 
@@ -126,7 +128,7 @@ The same core principle from the Product Owner applies here: when review flags a
 
 ## 10. Quality and test coverage
 
-46 automated tests cover every implemented module, all with Ollama/Jira/Confluence calls mocked — fast, deterministic, no dependency on external infrastructure to run in CI. Evaluating the agent in production combines three layers that never replace one another (`docs/agent/evaluation.md`):
+59 automated tests cover every implemented module, all with Ollama/Jira/Confluence calls mocked — fast, deterministic, no dependency on external infrastructure to run in CI. Evaluating the agent in production combines three layers that never replace one another (`docs/agent/evaluation.md`):
 
 1. Automatic checklist (`validate_solution_design`) — no LLM.
 2. LLM-as-judge (`review_solution_design`) — a different model from the generator.
@@ -140,7 +142,7 @@ When specifying this agent, the user provided a mature, complete product vision 
 - **API/OpenAPI/AsyncAPI/GraphQL contracts** — no contract parser or generator exists in this phase.
 - **UML/BPMN/Swagger/DB-schema parsers** — as additional input sources.
 - **The 7 additional pattern categories** (design/integration/distributed/cloud/security/data) **and the anti-patterns library** — only the architecture pattern catalog (the category most directly needed by `identify_architecture_pattern`) was built in this phase.
-- **Real write integrations** — Jira/Confluence write-back, GitHub, GitLab, Kubernetes, Terraform, cloud providers (AWS/Azure/GCP) — none has a real consumer today within Phase 1's scope.
+- **Real write integrations** — Jira write-back, GitHub, GitLab, Kubernetes, Terraform, cloud providers (AWS/Azure/GCP) — none has a real consumer today within Phase 1's scope (Confluence write-back has already been implemented, section 8).
 - **`--sdd-existente`** (inverse parser for the exported Markdown) — the same pattern by which `--epic-existente`/`--story-existente` were built as a *later* increment on top of the base features in the Product Owner, not from day one.
 - **GR-SA-5** (compatibility with the organization's technology standards) — there is no "organization standards" input source today; the guardrail is documented, but only fully verifiable once that source exists.
 - **RAG/project memory** (`docs/agent/memory.md`) — `knowledge/methodology/` has only 3 files in this phase, small enough to fit directly in the prompt without semantic search; RAG is left for when the pattern catalog grows large enough to no longer fit.

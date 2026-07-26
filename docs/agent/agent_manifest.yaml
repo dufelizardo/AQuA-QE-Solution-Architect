@@ -17,6 +17,7 @@ inputs:
 outputs:
   - solution_design
   - markdown
+  - confluence_page
 
 skills:
   - read_text_file
@@ -24,6 +25,9 @@ skills:
   - format_chat_transcript
   - read_jira_issue
   - read_confluence_page
+  - get_confluence_publish_location
+  - create_confluence_page
+  - update_confluence_page
   - extract_solution_context
   - identify_architecture_pattern
   - identify_components_and_integrations

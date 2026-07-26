@@ -2,7 +2,7 @@
 
 > Documentação das skills implementadas em `../../src/aqua_qe_solution_architect/skills/`, no formato definido em `../standards/skill_standard.md`. Ordem conforme `agent_manifest.yaml`. Tipos de entrada/saída referem-se às estruturas de `../../src/aqua_qe_solution_architect/models/`.
 >
-> `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions` e `refine_solution_design` usam um LLM local via Ollama (`../../src/aqua_qe_solution_architect/services/llm_service.py`, modelo configurável por `OLLAMA_MODEL`, padrão `mistral`). `validate_solution_design` e `format_solution_design_markdown` são Python puro, sem LLM (ver `evaluation.md`). `review_solution_design` usa um segundo LLM, diferente do gerador (`OLLAMA_REVIEW_MODEL`, padrão `phi4`), como revisor independente (LLM-como-juiz). `read_jira_issue`/`read_confluence_page` usam a API REST do Jira/Confluence Cloud — **apenas leitura**, nunca escrevem de volta.
+> `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions` e `refine_solution_design` usam um LLM local via Ollama (`../../src/aqua_qe_solution_architect/services/llm_service.py`, modelo configurável por `OLLAMA_MODEL`, padrão `mistral`). `validate_solution_design` e `format_solution_design_markdown` são Python puro, sem LLM (ver `evaluation.md`). `review_solution_design` usa um segundo LLM, diferente do gerador (`OLLAMA_REVIEW_MODEL`, padrão `phi4`), como revisor independente (LLM-como-juiz). `read_jira_issue`/`read_confluence_page` usam a API REST do Jira/Confluence Cloud — **apenas leitura**, nunca escrevem de volta. `create_confluence_page`/`update_confluence_page`/`get_confluence_publish_location` **escrevem** no Confluence Cloud (Jira continua apenas leitura) — sempre atrás de confirmação humana explícita no CLI (`run.py`), nunca automaticamente.
 
 ## read_text_file
 
@@ -48,6 +48,33 @@
 - **Efeitos colaterais**: chamada HTTP à API REST do Confluence Cloud; mesmas credenciais do Jira.
 - **Erros esperados**: credenciais ausentes; página inexistente ou sem permissão.
 - **Dependências**: nenhuma outra skill.
+
+## get_confluence_publish_location
+
+- **Descrição**: a partir da página de origem do PRD (URL ou ID), retorna o espaço e o id do ancestral imediato (pai) dessa página — para publicar o Solution Design como página **irmã** do PRD no mesmo local, nunca em local arbitrário nem como filha do próprio PRD.
+- **Entrada**: `pagina: str`.
+- **Saída**: `tuple[str, str | None]` — (espaço, id do ancestral imediato; `None` se a página de origem não tiver ancestral, ou seja, for a raiz do espaço).
+- **Efeitos colaterais**: chamada HTTP à API REST do Confluence Cloud (leitura); mesmas credenciais do Jira.
+- **Erros esperados**: credenciais ausentes; página inexistente ou sem permissão.
+- **Dependências**: nenhuma outra skill; usada por `run.py` antes de `create_confluence_page` quando `--publicar-confluence` é passado.
+
+## create_confluence_page
+
+- **Descrição**: publica o Solution Design formatado (Markdown) como página nova no Confluence Cloud, no espaço e como filha do ancestral informados (ver `get_confluence_publish_location`), e retorna a URL da página criada.
+- **Entrada**: `texto: str`, `titulo: str`, `space_key: str`, `parent_page_id: str | None`.
+- **Saída**: `str` — URL da página criada.
+- **Efeitos colaterais**: chamada HTTP de escrita (`POST`) à API REST do Confluence Cloud; mesmas credenciais do Jira. **Só é chamada pelo CLI após confirmação humana explícita** (`--publicar-confluence`, nunca automaticamente).
+- **Erros esperados**: credenciais ausentes; espaço/ancestral inexistente ou sem permissão de escrita.
+- **Dependências**: consome `format_solution_design_markdown` e o resultado de `get_confluence_publish_location`.
+
+## update_confluence_page
+
+- **Descrição**: atualiza o corpo de uma página do Solution Design já existente no Confluence Cloud (aceita URL completa ou ID), mantendo título e id.
+- **Entrada**: `pagina: str`, `texto: str`.
+- **Saída**: `None`.
+- **Efeitos colaterais**: chamada HTTP de escrita (`GET` para pegar a versão atual, depois `PUT`) à API REST do Confluence Cloud; mesmas credenciais do Jira. **Só é chamada pelo CLI após confirmação humana explícita** (`--atualizar-confluence`, nunca automaticamente).
+- **Erros esperados**: credenciais ausentes; página inexistente ou sem permissão de escrita.
+- **Dependências**: consome `format_solution_design_markdown`.
 
 ## extract_solution_context
 

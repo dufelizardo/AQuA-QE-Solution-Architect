@@ -36,7 +36,7 @@ Todo `NonFunctionalRequirement` tem um campo `rationale` obrigatório, sempre de
 
 ## Guardrail transversal — Sem aprovação automática
 
-Independentemente dos guardrails acima serem satisfeitos, o agente nunca marca um Solution Design como "aprovado" — apenas como **rascunho validado** (`draft_validated`). A aprovação final é sempre um ato humano, nunca delegado ao LLM revisor nem ao checklist automático (mesmo princípio de GR-1 no AQuA-QE Product Owner e GR-M em Product Manager).
+Independentemente dos guardrails acima serem satisfeitos, o agente nunca marca um Solution Design como "aprovado" — apenas como **rascunho validado** (`draft_validated`). A aprovação final é sempre um ato humano, nunca delegado ao LLM revisor nem ao checklist automático (mesmo princípio de GR-1 no AQuA-QE Product Owner e GR-M em Product Manager). O mesmo vale para escritas externas: publicar ou atualizar uma página no Confluence (`--publicar-confluence`/`--atualizar-confluence`) sempre exige confirmação humana explícita no CLI, e a página publicada é sempre irmã da página de origem do PRD — nunca em local arbitrário (RULE-SA-10).
 
 ## Aplicação
 

@@ -19,7 +19,8 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
    → review_solution_design (LLM revisor independente — phi4)
    → [se reprovado] generate_sdd_clarifying_questions → resposta humana → refine_solution_design → revalidar
    → aceite humano explícito
-   → format_solution_design_markdown (export)
+   → format_solution_design_markdown (export local)
+   → [opcional, --publicar-confluence/--atualizar-confluence] get_confluence_publish_location → create_confluence_page/update_confluence_page
 ```
 
 ## Componentes
@@ -29,7 +30,7 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
 - **Skills** — funções descritas em `skills.md`, implementadas em `../../src/aqua_qe_solution_architect/skills/`.
 - **Modelos de dados** — `SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, `ChatMessage`, enum `ArtifactStatus`, implementados em `../../src/aqua_qe_solution_architect/models/`, conforme `output_schema.md`.
 - **Fontes de conhecimento** — `knowledge/methodology/` (catálogo de padrões arquiteturais, ISO/IEC 25010, ADR), consumido diretamente no prompt de cada skill (sem RAG nesta fase — o volume cabe direto no contexto).
-- **Interfaces externas** — entrada: arquivo `.txt`/Markdown, texto de chat, ticket Jira (leitura) ou página Confluence (leitura); saída: arquivo Markdown exportado (`format_solution_design_markdown`), consumível pelo Product Owner como contexto técnico.
+- **Interfaces externas** — entrada: arquivo `.txt`/Markdown, texto de chat, ticket Jira (leitura) ou página Confluence (leitura); saída: arquivo Markdown exportado (`format_solution_design_markdown`), consumível pelo Product Owner como contexto técnico, e opcionalmente uma página no Confluence (`create_confluence_page`/`update_confluence_page`), sempre irmã da página de origem do PRD e sempre atrás de confirmação humana.
 
 ## Fluxo de dados
 
@@ -52,7 +53,7 @@ Um único fluxo nesta fase — gerar o Solution Design Document a partir de uma 
 
 - Dois LLMs locais via Ollama (`OLLAMA_MODEL` gerador, `OLLAMA_REVIEW_MODEL` revisor) — mesma convenção de PM/PO.
 - Sem RAG/embeddings nesta fase — `knowledge/methodology/` é pequeno o suficiente para caber direto no prompt de cada skill.
-- Serviços externos (Jira, Confluence) introduzidos só como leitura, sem escrita — mesmo princípio de "nenhum serviço construído sem consumidor real" já aplicado em PM/PO.
+- Jira continua só leitura, sem escrita — mesmo princípio de "nenhum serviço construído sem consumidor real" já aplicado em PM/PO (não há hoje um caso de uso real de write-back no Jira a partir de um Solution Design). Confluence ganhou escrita gated (publicar/atualizar), sempre atrás de confirmação humana e sempre como página irmã da fonte.
 
 ## Observabilidade
 

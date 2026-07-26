@@ -72,19 +72,28 @@ uv run python run.py --confluence "https://seu-site.atlassian.net/wiki/.../pages
 
 # Com ciclo interativo de refinamento (perguntas, aceite final)
 uv run python run.py --arquivo prd.txt --saida sdd.md --refinar
+
+# Publicar como página nova no Confluence, irmã da página de origem do PRD
+uv run python run.py --confluence "https://seu-site.atlassian.net/wiki/.../pages/163841/..." --publicar-confluence
+
+# Atualizar uma página já publicada
+uv run python run.py --confluence "https://seu-site.atlassian.net/wiki/.../pages/163841/..." --atualizar-confluence "https://seu-site.atlassian.net/wiki/.../pages/999999/..."
 ```
 
 `--saida` é opcional (sem ela, o resultado só é impresso no terminal). Para usar `--jira`/`--confluence`, preencha `JIRA_BASE_URL`, `JIRA_EMAIL` e `JIRA_API_TOKEN` no `.env` (o token é gerado em `id.atlassian.com/manage-profile/security/api-tokens`).
 
 Um prompt sempre pergunta se você aceita o Solution Design, com ou sem `--refinar` — a exportação (`--saida`) só acontece depois desse aceite explícito, nunca antes. `--refinar` ativa o ciclo interativo que roda *antes* desse prompt: se o Solution Design não sair aprovado na revisão, o agente gera perguntas de esclarecimento a partir dos apontamentos, você responde no terminal, e as respostas viram contexto real para reescrever o design (em vez do LLM adivinhar sozinho). Ver `run.py --help` para todas as opções.
 
+`--publicar-confluence`/`--atualizar-confluence` (mutuamente exclusivos, só válidos com `--confluence`) rodam depois do aceite: perguntam confirmação explícita antes de publicar/atualizar, e a página nova é sempre criada como **irmã da página de origem do PRD** (mesmo espaço, mesmo ancestral/pasta) — nunca em local arbitrário nem sobrescrevendo o PRD. O título é perguntado interativamente; a convenção sugerida é `"SAD - <título>"` (Solution Architecture Document), espelhando o `"PRD - <título>"` já usado. Não é necessária nenhuma variável de ambiente nova — espaço e página-pai são derivados automaticamente da própria página de origem.
+
 ## Status
 
 `docs/agent/`, `docs/standards/` e `knowledge/methodology/`/`knowledge/templates/` estão com conteúdo real preenchido.
 
-Em `src/`, as 16 skills e o único workflow estão implementados e funcionam de ponta a ponta com modelos locais via Ollama:
+Em `src/`, as 19 skills e o único workflow estão implementados e funcionam de ponta a ponta com modelos locais via Ollama:
 
 - `read_text_file`, `read_jira_issue`, `read_confluence_page` (leitura apenas) e `parse_chat_transcript`/`format_chat_transcript` (normalização de chat, Python puro, sem LLM) preparam o texto de entrada.
+- `get_confluence_publish_location`, `create_confluence_page` e `update_confluence_page` publicam/atualizam o resultado no Confluence (**escrita**, diferente das demais integrações que só leem) — sempre atrás de confirmação humana explícita, sempre como página irmã da página de origem do PRD.
 - `extract_solution_context` (LLM `mistral`) extrai título e contexto/problema.
 - `identify_architecture_pattern` (LLM `mistral`) escolhe um padrão só entre os do catálogo fechado em `knowledge/methodology/architecture_patterns.md` — nunca inventa um padrão fora dele (GR-SA-1).
 - `identify_components_and_integrations` (LLM `mistral`) identifica componentes e integrações citados/inferíveis no texto (GR-SA-2: nunca assumir integração sem evidência).
@@ -97,7 +106,7 @@ Em `src/`, as 16 skills e o único workflow estão implementados e funcionam de 
 - `format_solution_design_markdown` (Python puro) exporta o resultado final.
 - `workflow/generate_solution_design.py` (`generate_solution_design`, `finalize_solution_design`) orquestra a sequência completa; `orchestrator/solution_architect.py::handle_request` é o ponto de entrada único.
 
-Ainda faltam (deliberadamente adiados, ver `WHITEPAPER.md`, seção 11): C4/diagramas, contratos de API/OpenAPI, parsers de UML/BPMN/Swagger/schema de banco, integrações reais de escrita (Jira/Confluence/GitHub/GitLab/Kubernetes/Terraform/nuvem), as 7 categorias adicionais de patterns (design/integração/distribuído/cloud/segurança/dados) + biblioteca de anti-patterns, `--sdd-existente` (parser inverso, mesmo padrão de `--epic-existente`/`--story-existente` no Product Owner), RAG/memória de projeto, e frameworks formais de descrição/avaliação de arquitetura (TOGAF, Zachman, Arc42, ISO/IEC/IEEE 42010, ISO/IEC 12207, QAW, ATAM). `tests/` cobre todos os módulos implementados (46 testes, mocks de LLM/HTTP — rápidos e determinísticos, não chamam Ollama nem Jira/Confluence de verdade).
+Ainda faltam (deliberadamente adiados, ver `WHITEPAPER.md`, seção 11): C4/diagramas, contratos de API/OpenAPI, parsers de UML/BPMN/Swagger/schema de banco, integrações reais de escrita em Jira/GitHub/GitLab/Kubernetes/Terraform/nuvem (Confluence já ganhou escrita gated), as 7 categorias adicionais de patterns (design/integração/distribuído/cloud/segurança/dados) + biblioteca de anti-patterns, `--sdd-existente` (parser inverso, mesmo padrão de `--epic-existente`/`--story-existente` no Product Owner), RAG/memória de projeto, e frameworks formais de descrição/avaliação de arquitetura (TOGAF, Zachman, Arc42, ISO/IEC/IEEE 42010, ISO/IEC 12207, QAW, ATAM). `tests/` cobre todos os módulos implementados (59 testes, mocks de LLM/HTTP — rápidos e determinísticos, não chamam Ollama nem Jira/Confluence de verdade).
 
 Este projeto tem repositório git próprio, independente do monorepo raiz (conforme a convenção "todo projeto novo recebe repositório separado" — ver `CLAUDE.md` raiz): [github.com/dufelizardo/AQuA-QE-Solution-Architect](https://github.com/dufelizardo/AQuA-QE-Solution-Architect).
 

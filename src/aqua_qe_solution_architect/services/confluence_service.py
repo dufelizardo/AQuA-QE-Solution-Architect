@@ -1,3 +1,4 @@
+import html
 import os
 from html.parser import HTMLParser
 
@@ -61,3 +62,114 @@ def get_page_text(page_id: str) -> str:
     titulo = dados.get("title", "")
     corpo = _storage_para_texto(dados.get("body", {}).get("storage", {}).get("value", ""))
     return f"{titulo}\n\n{corpo}".strip()
+
+
+def get_page_parent_context(page_id: str) -> tuple[str, str | None]:
+    """Busca o espaço e o ancestral imediato (pai) de uma página, para publicar uma página irmã no mesmo local."""
+    base_url, email, token = _credenciais()
+
+    resposta = httpx.get(
+        f"{base_url}/wiki/rest/api/content/{page_id}",
+        auth=(email, token),
+        params={"expand": "space,ancestors"},
+        timeout=30,
+    )
+    resposta.raise_for_status()
+    dados = resposta.json()
+
+    space_key = dados["space"]["key"]
+    ancestors = dados.get("ancestors", [])
+    ancestral_imediato = ancestors[-1]["id"] if ancestors else None
+    return space_key, ancestral_imediato
+
+
+def _texto_para_storage(texto: str) -> str:
+    """Converte Markdown simples (#/##/### e listas com "- ") no storage format (XHTML) do Confluence.
+
+    Usado para publicar o Solution Design (produzido por format_solution_design_markdown),
+    que é sempre Markdown — por isso "# "/"## "/"### " viram h1/h2/h3 e linhas
+    consecutivas com "- " viram uma lista; o restante vira parágrafo, tudo
+    HTML-escapado.
+    """
+    partes: list[str] = []
+    itens_lista: list[str] = []
+
+    def fechar_lista() -> None:
+        if itens_lista:
+            partes.append("<ul>" + "".join(f"<li>{item}</li>" for item in itens_lista) + "</ul>")
+            itens_lista.clear()
+
+    for linha in texto.splitlines():
+        linha = linha.strip()
+        if not linha:
+            continue
+        if linha.startswith("### "):
+            fechar_lista()
+            partes.append(f"<h3>{html.escape(linha[4:])}</h3>")
+        elif linha.startswith("## "):
+            fechar_lista()
+            partes.append(f"<h2>{html.escape(linha[3:])}</h2>")
+        elif linha.startswith("# "):
+            fechar_lista()
+            partes.append(f"<h1>{html.escape(linha[2:])}</h1>")
+        elif linha.startswith("- "):
+            itens_lista.append(html.escape(linha[2:]))
+        else:
+            fechar_lista()
+            partes.append(f"<p>{html.escape(linha)}</p>")
+
+    fechar_lista()
+    return "".join(partes)
+
+
+def create_page(space_key: str, title: str, texto: str, parent_page_id: str | None = None) -> str:
+    """Cria uma nova página no Confluence Cloud a partir de texto simples e retorna o id da página criada."""
+    base_url, email, token = _credenciais()
+
+    body: dict = {
+        "type": "page",
+        "title": title,
+        "space": {"key": space_key},
+        "body": {"storage": {"value": _texto_para_storage(texto), "representation": "storage"}},
+    }
+    if parent_page_id:
+        body["ancestors"] = [{"id": parent_page_id}]
+
+    resposta = httpx.post(
+        f"{base_url}/wiki/rest/api/content",
+        auth=(email, token),
+        json=body,
+        timeout=30,
+    )
+    resposta.raise_for_status()
+    return resposta.json()["id"]
+
+
+def update_page(page_id: str, texto: str) -> None:
+    """Atualiza o corpo de uma página existente no Confluence Cloud a partir de texto simples, mantendo título e id."""
+    base_url, email, token = _credenciais()
+
+    atual = httpx.get(
+        f"{base_url}/wiki/rest/api/content/{page_id}",
+        auth=(email, token),
+        params={"expand": "version"},
+        timeout=30,
+    )
+    atual.raise_for_status()
+    dados = atual.json()
+
+    resposta = httpx.put(
+        f"{base_url}/wiki/rest/api/content/{page_id}",
+        auth=(email, token),
+        json={
+            "id": page_id,
+            "type": "page",
+            "title": dados["title"],
+            "version": {"number": dados["version"]["number"] + 1},
+            "body": {
+                "storage": {"value": _texto_para_storage(texto), "representation": "storage"}
+            },
+        },
+        timeout=30,
+    )
+    resposta.raise_for_status()

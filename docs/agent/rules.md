@@ -74,6 +74,14 @@
 - **Severidade**: bloqueante.
 - **Origem**: guardrail transversal "Sem aprovação automática" (`guardrails.md`).
 
+## RULE-SA-10
+
+- **Descrição**: publicar (`--publicar-confluence`) ou atualizar (`--atualizar-confluence`) uma página no Confluence nunca acontece automaticamente, e a página publicada é sempre irmã da página de origem do PRD (mesmo ancestral imediato), nunca em local arbitrário nem sobrescrevendo o PRD.
+- **Gatilho**: `create_confluence_page`/`update_confluence_page` seriam chamadas.
+- **Ação esperada**: o CLI (`run.py`) sempre pergunta confirmação explícita antes de publicar/atualizar; `get_confluence_publish_location` deriva espaço/ancestral da página de origem, nunca de configuração manual solta.
+- **Severidade**: bloqueante.
+- **Origem**: mesmo espírito do guardrail transversal "Sem aprovação automática" (`guardrails.md`), estendido às escritas no Confluence.
+
 ## Resolução de conflitos
 
-RULE-SA-1, RULE-SA-2, RULE-SA-3, RULE-SA-6, RULE-SA-7 e RULE-SA-9 são bloqueantes. RULE-SA-4 é recomendação verificada por revisão humana/LLM, não pelo checklist automático (nem toda decisão tem uma alternativa real a registrar). RULE-SA-5 e RULE-SA-8 ainda não são verificáveis nesta fase, por ausência das fontes/artefatos que as tornariam aplicáveis.
+RULE-SA-1, RULE-SA-2, RULE-SA-3, RULE-SA-6, RULE-SA-7, RULE-SA-9 e RULE-SA-10 são bloqueantes. RULE-SA-4 é recomendação verificada por revisão humana/LLM, não pelo checklist automático (nem toda decisão tem uma alternativa real a registrar). RULE-SA-5 e RULE-SA-8 ainda não são verificáveis nesta fase, por ausência das fontes/artefatos que as tornariam aplicáveis.
