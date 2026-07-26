@@ -1,0 +1,45 @@
+name: Solution Architect
+version: 0.1.0
+description: >
+  Gera Solution Design Documents (padrão arquitetural, componentes,
+  integrações, requisitos não funcionais, riscos técnicos e decisões
+  arquiteturais/ADRs) a partir de um PRD ou fonte de requisitos equivalente,
+  com rastreabilidade à fonte e validação automática antes da revisão
+  humana obrigatória.
+
+inputs:
+  - txt
+  - markdown
+  - chat
+  - jira
+  - confluence
+
+outputs:
+  - solution_design
+  - markdown
+
+skills:
+  - read_text_file
+  - parse_chat_transcript
+  - format_chat_transcript
+  - read_jira_issue
+  - read_confluence_page
+  - extract_solution_context
+  - identify_architecture_pattern
+  - identify_components_and_integrations
+  - generate_non_functional_requirements
+  - identify_technical_risks
+  - generate_architecture_decisions
+  - validate_solution_design
+  - review_solution_design
+  - generate_sdd_clarifying_questions
+  - refine_solution_design
+  - format_solution_design_markdown
+
+memory:
+  vector: false
+  rag: false
+  knowledge_graph: false
+
+rules: rules.md
+spec: ai_spec.md
