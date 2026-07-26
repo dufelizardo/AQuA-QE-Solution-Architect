@@ -4,7 +4,7 @@
 
 ## RULE-SA-1
 
-- **Descrição**: nenhum componente, integração, NFR, risco ou decisão arquitetural pode ser gerado sem origem rastreável na fonte de entrada; `identify_architecture_pattern` só pode escolher um padrão do catálogo em `knowledge/methodology/architecture_patterns.md`.
+- **Descrição**: nenhum componente, integração, NFR, risco, decisão arquitetural, entidade de modelo de domínio ou fluxo de processo pode ser gerado sem origem rastreável na fonte de entrada; `identify_architecture_pattern` só pode escolher um padrão do catálogo em `knowledge/methodology/architecture_patterns.md`.
 - **Gatilho**: geração de qualquer campo do Solution Design.
 - **Ação esperada**: se a origem não for identificável, o campo fica vazio (padrão do dataclass) — nunca preenchido por suposição.
 - **Severidade**: bloqueante.
@@ -82,6 +82,14 @@
 - **Severidade**: bloqueante.
 - **Origem**: mesmo espírito do guardrail transversal "Sem aprovação automática" (`guardrails.md`), estendido às escritas no Confluence.
 
+## RULE-SA-11
+
+- **Descrição**: integrações candidatas (`candidate_integrations`, sugeridas por conhecimento de domínio) nunca são apresentadas como confirmadas ou evidenciadas — sempre distintas de `integrations` (que exige evidência textual, RULE-SA-2), sempre rotuladas como recomendação a confirmar.
+- **Gatilho**: `identify_candidate_integrations`, `refine_solution_design`, `format_solution_design_markdown`.
+- **Ação esperada**: manter `candidate_integrations` em campo e seção separados de `integrations`, nunca misturados; nunca afirmar que uma integração candidata é necessária ou decidida.
+- **Severidade**: bloqueante.
+- **Origem**: decisão de produto para cobrir integrações prováveis de domínio sem violar GR-SA-2 para integrações confirmadas.
+
 ## Resolução de conflitos
 
-RULE-SA-1, RULE-SA-2, RULE-SA-3, RULE-SA-6, RULE-SA-7, RULE-SA-9 e RULE-SA-10 são bloqueantes. RULE-SA-4 é recomendação verificada por revisão humana/LLM, não pelo checklist automático (nem toda decisão tem uma alternativa real a registrar). RULE-SA-5 e RULE-SA-8 ainda não são verificáveis nesta fase, por ausência das fontes/artefatos que as tornariam aplicáveis.
+RULE-SA-1, RULE-SA-2, RULE-SA-3, RULE-SA-6, RULE-SA-7, RULE-SA-9, RULE-SA-10 e RULE-SA-11 são bloqueantes. RULE-SA-4 é recomendação verificada por revisão humana/LLM, não pelo checklist automático (nem toda decisão tem uma alternativa real a registrar). RULE-SA-5 e RULE-SA-8 ainda não são verificáveis nesta fase, por ausência das fontes/artefatos que as tornariam aplicáveis.

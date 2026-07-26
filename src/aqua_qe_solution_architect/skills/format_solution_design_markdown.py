@@ -5,6 +5,32 @@ def _lista_md(itens: list[str]) -> str:
     return "\n".join(f"- {item}" for item in itens) if itens else "(nenhum)"
 
 
+def _dominio_md(sdd: SolutionDesign) -> str:
+    if not sdd.domain_model:
+        return "(nenhum)"
+    linhas = []
+    for entidade in sdd.domain_model:
+        linhas += [
+            f"### {entidade.name}",
+            "",
+            _lista_md(entidade.attributes),
+            "",
+        ]
+    return "\n".join(linhas).rstrip()
+
+
+def _fluxos_md(sdd: SolutionDesign) -> str:
+    if not sdd.process_flows:
+        return "(nenhum)"
+    linhas = []
+    for fluxo in sdd.process_flows:
+        linhas.append(f"### {fluxo.name}")
+        linhas.append("")
+        linhas += [f"{i + 1}. {passo}" for i, passo in enumerate(fluxo.steps)]
+        linhas.append("")
+    return "\n".join(linhas).rstrip()
+
+
 def _nfrs_md(sdd: SolutionDesign) -> str:
     if not sdd.non_functional_requirements:
         return "(nenhum)"
@@ -47,7 +73,10 @@ def format_solution_design_markdown(sdd: SolutionDesign) -> str:
         f"## Padrão Arquitetural\n{sdd.architecture_pattern}\n\n"
         f"## Justificativa\n{sdd.pattern_rationale}\n\n"
         f"## Componentes\n{_lista_md(sdd.components)}\n\n"
+        f"## Modelo de Domínio\n\n{_dominio_md(sdd)}\n\n"
         f"## Integrações\n{_lista_md(sdd.integrations)}\n\n"
+        f"## Integrações Candidatas (sugeridas, a confirmar)\n{_lista_md(sdd.candidate_integrations)}\n\n"
+        f"## Fluxos Principais\n\n{_fluxos_md(sdd)}\n\n"
         f"## Requisitos Não Funcionais\n\n{_nfrs_md(sdd)}\n\n"
         f"## Riscos Técnicos\n{_lista_md(sdd.technical_risks)}\n\n"
         f"## Decisões Arquiteturais (ADRs)\n\n{_decisoes_md(sdd)}\n\n"

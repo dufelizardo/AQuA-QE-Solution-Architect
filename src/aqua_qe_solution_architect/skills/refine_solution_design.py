@@ -1,4 +1,10 @@
-from ..models import ArchitectureDecision, NonFunctionalRequirement, SolutionDesign
+from ..models import (
+    ArchitectureDecision,
+    DomainEntity,
+    NonFunctionalRequirement,
+    ProcessFlow,
+    SolutionDesign,
+)
 from ..services.llm_service import complete_json
 
 _SYSTEM = (
@@ -6,10 +12,12 @@ _SYSTEM = (
     "quem propôs a solução deu às perguntas de esclarecimento levantadas "
     "por um revisor. Baseie-se apenas no Solution Design atual e nas "
     "respostas fornecidas; nunca invente padrão arquitetural, integração, "
-    "NFR, risco ou decisão que não tenha sido informado neles. Nunca remova "
-    "ou resuma um detalhe que já existe em um campo atual, a menos que uma "
-    "resposta contradiga esse detalhe especificamente — preserve o texto "
-    "existente nos campos que as respostas não abordam. Responda sempre em "
+    "NFR, risco, decisão, entidade de domínio ou fluxo que não tenha sido "
+    "informado neles. Integrações candidatas continuam sendo sugestões, "
+    "nunca fatos confirmados, mesmo após o refino. Nunca remova ou resuma "
+    "um detalhe que já existe em um campo atual, a menos que uma resposta "
+    "contradiga esse detalhe especificamente — preserve o texto existente "
+    "nos campos que as respostas não abordam. Responda sempre em "
     "português."
 )
 
@@ -30,6 +38,10 @@ def refine_solution_design(sdd: SolutionDesign, respostas: list[dict]) -> Soluti
         }
         for d in sdd.decisions
     ]
+    dominio_atual = [
+        {"nome": e.name, "atributos": e.attributes} for e in sdd.domain_model
+    ]
+    fluxos_atuais = [{"nome": f.name, "passos": f.steps} for f in sdd.process_flows]
     perguntas_respostas = [f"P: {item['pergunta']}\nR: {item['resposta']}" for item in respostas]
 
     prompt = (
@@ -38,7 +50,10 @@ def refine_solution_design(sdd: SolutionDesign, respostas: list[dict]) -> Soluti
         f"Padrão arquitetural atual: {sdd.architecture_pattern}\n"
         f"Justificativa atual: {sdd.pattern_rationale}\n"
         f"Componentes atuais: {sdd.components}\n"
+        f"Modelo de domínio atual: {dominio_atual}\n"
         f"Integrações atuais: {sdd.integrations}\n"
+        f"Integrações candidatas atuais: {sdd.candidate_integrations}\n"
+        f"Fluxos principais atuais: {fluxos_atuais}\n"
         f"NFRs atuais: {nfrs_atuais}\n"
         f"Riscos técnicos atuais: {sdd.technical_risks}\n"
         f"Decisões atuais: {decisoes_atuais}\n\n"
@@ -51,11 +66,13 @@ def refine_solution_design(sdd: SolutionDesign, respostas: list[dict]) -> Soluti
         "para menos palavras do que já tinha.\n\n"
         'Responda apenas em JSON: {"titulo": "...", "contexto": "...", '
         '"padrao_arquitetural": "...", "justificativa": "...", '
-        '"componentes": ["..."], "integracoes": ["..."], "nfrs": '
-        '[{"categoria": "...", "requisito": "...", "rationale": "..."}], '
-        '"riscos": ["..."], "decisoes": [{"titulo": "...", "contexto": '
-        '"...", "decisao": "...", "alternativas_consideradas": ["..."], '
-        '"consequencias": "..."}]}'
+        '"componentes": ["..."], "modelo_dominio": [{"nome": "...", '
+        '"atributos": ["..."]}], "integracoes": ["..."], '
+        '"integracoes_candidatas": ["..."], "fluxos": [{"nome": "...", '
+        '"passos": ["..."]}], "nfrs": [{"categoria": "...", "requisito": '
+        '"...", "rationale": "..."}], "riscos": ["..."], "decisoes": '
+        '[{"titulo": "...", "contexto": "...", "decisao": "...", '
+        '"alternativas_consideradas": ["..."], "consequencias": "..."}]}'
     )
     dados = complete_json(prompt, system=_SYSTEM)
 
@@ -65,7 +82,28 @@ def refine_solution_design(sdd: SolutionDesign, respostas: list[dict]) -> Soluti
     sdd.pattern_rationale = dados.get("justificativa") or sdd.pattern_rationale
     sdd.components = dados.get("componentes") or sdd.components
     sdd.integrations = dados.get("integracoes") or sdd.integrations
+    sdd.candidate_integrations = dados.get("integracoes_candidatas") or sdd.candidate_integrations
     sdd.technical_risks = dados.get("riscos") or sdd.technical_risks
+
+    novo_dominio = [
+        DomainEntity(
+            name=item.get("nome", ""),
+            attributes=item.get("atributos", []),
+            source_reference=sdd.source_reference,
+        )
+        for item in dados.get("modelo_dominio", [])
+    ]
+    sdd.domain_model = novo_dominio or sdd.domain_model
+
+    novos_fluxos = [
+        ProcessFlow(
+            name=item.get("nome", ""),
+            steps=item.get("passos", []),
+            source_reference=sdd.source_reference,
+        )
+        for item in dados.get("fluxos", [])
+    ]
+    sdd.process_flows = novos_fluxos or sdd.process_flows
 
     novos_nfrs = [
         NonFunctionalRequirement(

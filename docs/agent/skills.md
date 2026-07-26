@@ -2,7 +2,7 @@
 
 > Documentação das skills implementadas em `../../src/aqua_qe_solution_architect/skills/`, no formato definido em `../standards/skill_standard.md`. Ordem conforme `agent_manifest.yaml`. Tipos de entrada/saída referem-se às estruturas de `../../src/aqua_qe_solution_architect/models/`.
 >
-> `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions` e `refine_solution_design` usam um LLM local via Ollama (`../../src/aqua_qe_solution_architect/services/llm_service.py`, modelo configurável por `OLLAMA_MODEL`, padrão `mistral`). `validate_solution_design` e `format_solution_design_markdown` são Python puro, sem LLM (ver `evaluation.md`). `review_solution_design` usa um segundo LLM, diferente do gerador (`OLLAMA_REVIEW_MODEL`, padrão `phi4`), como revisor independente (LLM-como-juiz). `read_jira_issue`/`read_confluence_page` usam a API REST do Jira/Confluence Cloud — **apenas leitura**, nunca escrevem de volta. `create_confluence_page`/`update_confluence_page`/`get_confluence_publish_location` **escrevem** no Confluence Cloud (Jira continua apenas leitura) — sempre atrás de confirmação humana explícita no CLI (`run.py`), nunca automaticamente.
+> `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `identify_candidate_integrations`, `identify_domain_model`, `identify_process_flows`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions` e `refine_solution_design` usam um LLM local via Ollama (`../../src/aqua_qe_solution_architect/services/llm_service.py`, modelo configurável por `OLLAMA_MODEL`, padrão `mistral`). `validate_solution_design` e `format_solution_design_markdown` são Python puro, sem LLM (ver `evaluation.md`). `review_solution_design` usa um segundo LLM, diferente do gerador (`OLLAMA_REVIEW_MODEL`, padrão `phi4`), como revisor independente (LLM-como-juiz). `read_jira_issue`/`read_confluence_page` usam a API REST do Jira/Confluence Cloud — **apenas leitura**, nunca escrevem de volta. `create_confluence_page`/`update_confluence_page`/`get_confluence_publish_location` **escrevem** no Confluence Cloud (Jira continua apenas leitura) — sempre atrás de confirmação humana explícita no CLI (`run.py`), nunca automaticamente.
 
 ## read_text_file
 
@@ -87,7 +87,7 @@
 
 ## identify_architecture_pattern
 
-- **Descrição**: identifica o padrão arquitetural mais adequado ao contexto, só entre os do catálogo em `../../knowledge/methodology/architecture_patterns.md` (GR-SA-1) — nunca inventa um padrão fora da lista, mesmo que o LLM tente.
+- **Descrição**: identifica o padrão arquitetural mais adequado ao contexto, só entre os do catálogo em `../../knowledge/methodology/architecture_patterns.md` (GR-SA-1) — nunca inventa um padrão fora da lista, mesmo que o LLM tente. O prompt inclui a descrição/quando-usar de cada padrão do catálogo (`_DESCRICOES_PADROES`, reaproveitado por `identify_components_and_integrations`), para fundamentar a justificativa em vez de depender do conhecimento genérico do LLM.
 - **Entrada**: `texto: str`.
 - **Saída**: `tuple[str, str]` — (padrão, justificativa); padrão fica `""` se o LLM devolver algo fora do catálogo.
 - **Efeitos colaterais**: chamada ao LLM local.
@@ -96,16 +96,43 @@
 
 ## identify_components_and_integrations
 
-- **Descrição**: identifica componentes de alto nível e integrações citadas/inferíveis no texto (GR-SA-2: nunca assumir integração sem evidência documental).
-- **Entrada**: `texto: str`.
+- **Descrição**: identifica componentes de alto nível — estruturados conforme a decomposição típica do padrão arquitetural já escolhido (camadas para Layered/Clean/Onion, serviços para Microservices, portas/adaptadores para Hexagonal, etc., ver `../../knowledge/methodology/architecture_patterns.md`) — e integrações citadas/inferíveis no texto (GR-SA-2: nunca assumir integração sem evidência documental).
+- **Entrada**: `texto: str`, `padrao: str` (padrão arquitetural já escolhido por `identify_architecture_pattern`).
 - **Saída**: `tuple[list[str], list[str]]` — (componentes, integrações).
+- **Efeitos colaterais**: chamada ao LLM local.
+- **Erros esperados**: resposta do LLM não é JSON válido (`ValueError`).
+- **Dependências**: consome a saída de `identify_architecture_pattern`.
+
+## identify_candidate_integrations
+
+- **Descrição**: sugere integrações comuns para o domínio descrito, mesmo sem evidência explícita no texto (ex.: sistema de saúde pública brasileiro → SUS/CNES/e-SUS) — sempre como recomendação a confirmar, nunca como fato. Distinta de `identify_components_and_integrations`, que exige evidência textual (GR-SA-2/RULE-SA-11).
+- **Entrada**: `texto: str`.
+- **Saída**: `list[str]` — integrações candidatas; vazia se o domínio não sugerir nenhuma adicional razoável.
+- **Efeitos colaterais**: chamada ao LLM local.
+- **Erros esperados**: resposta do LLM não é JSON válido (`ValueError`).
+- **Dependências**: nenhuma outra skill.
+
+## identify_domain_model
+
+- **Descrição**: identifica as principais entidades do modelo de domínio (ex.: Paciente, Consulta) e seus atributos — só existem se evidenciados/inferíveis do texto (GR-SA-1), nunca inventados.
+- **Entrada**: `texto: str`.
+- **Saída**: `list[DomainEntity]`.
+- **Efeitos colaterais**: chamada ao LLM local.
+- **Erros esperados**: resposta do LLM não é JSON válido (`ValueError`).
+- **Dependências**: nenhuma outra skill.
+
+## identify_process_flows
+
+- **Descrição**: identifica os principais fluxos de processo (ex.: fluxo de agendamento) e seus passos em ordem — só existem se evidenciados/inferíveis do texto (GR-SA-1), nunca inventados.
+- **Entrada**: `texto: str`.
+- **Saída**: `list[ProcessFlow]`.
 - **Efeitos colaterais**: chamada ao LLM local.
 - **Erros esperados**: resposta do LLM não é JSON válido (`ValueError`).
 - **Dependências**: nenhuma outra skill.
 
 ## generate_non_functional_requirements
 
-- **Descrição**: identifica NFRs categorizados conforme ISO/IEC 25010 (`../../knowledge/methodology/iso25010.md`), cada um com `rationale` rastreável a uma necessidade de negócio (GR-SA-6).
+- **Descrição**: identifica NFRs categorizados conforme ISO/IEC 25010 (`../../knowledge/methodology/iso25010.md`, definições de cada categoria embutidas no prompt para evitar categorização errônea — ex.: conformidade legal/LGPD é sempre segurança, nunca observabilidade), cada um com `rationale` rastreável a uma necessidade de negócio (GR-SA-6) e quantificado (SLA/SLO) quando o texto sustentar.
 - **Entrada**: `texto: str`.
 - **Saída**: `list[NonFunctionalRequirement]`; categoria fica `""` se o LLM devolver uma categoria fora das 6 válidas.
 - **Efeitos colaterais**: chamada ao LLM local.
@@ -123,7 +150,7 @@
 
 ## generate_architecture_decisions
 
-- **Descrição**: gera os ADRs da solução (`../../knowledge/methodology/adr.md`) a partir do padrão escolhido, componentes/integrações e contexto — toda decisão relevante precisa de um ADR (GR-SA-3), com alternativas explícitas quando houver mais de uma opção viável (GR-SA-4).
+- **Descrição**: gera os ADRs da solução (`../../knowledge/methodology/adr.md`) a partir do padrão escolhido, componentes/integrações e contexto — toda decisão relevante precisa de um ADR (GR-SA-3), com alternativas explícitas quando houver mais de uma opção viável (GR-SA-4) e consequências positivas *e* negativas explícitas. Considera explicitamente persistência de dados, segurança e estratégia de escalabilidade como candidatas a ADR quando o contexto sustentar.
 - **Entrada**: `padrao: str`, `justificativa_padrao: str`, `componentes: list[str]`, `integracoes: list[str]`, `texto: str`.
 - **Saída**: `list[ArchitectureDecision]`.
 - **Efeitos colaterais**: chamada ao LLM local.

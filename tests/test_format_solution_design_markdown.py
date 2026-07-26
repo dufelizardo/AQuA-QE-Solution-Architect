@@ -1,4 +1,10 @@
-from aqua_qe_solution_architect.models import ArchitectureDecision, NonFunctionalRequirement, SolutionDesign
+from aqua_qe_solution_architect.models import (
+    ArchitectureDecision,
+    DomainEntity,
+    NonFunctionalRequirement,
+    ProcessFlow,
+    SolutionDesign,
+)
 from aqua_qe_solution_architect.skills.format_solution_design_markdown import format_solution_design_markdown
 
 
@@ -10,7 +16,18 @@ def test_format_solution_design_markdown_includes_all_fields():
         architecture_pattern="Microservices",
         pattern_rationale="Equipes autonomas, dominios bem definidos",
         components=["servico de saldo"],
+        domain_model=[
+            DomainEntity(name="Conta", attributes=["numero", "saldo"], source_reference="trecho 1")
+        ],
         integrations=["sistema legado de contas"],
+        candidate_integrations=["sistema de notificacao"],
+        process_flows=[
+            ProcessFlow(
+                name="Consulta de saldo",
+                steps=["autenticar", "buscar saldo", "exibir resultado"],
+                source_reference="trecho 1",
+            )
+        ],
         non_functional_requirements=[
             NonFunctionalRequirement(
                 category="performance",
@@ -42,7 +59,15 @@ def test_format_solution_design_markdown_includes_all_fields():
     assert "Clientes precisam consultar saldo pelo app" in resultado
     assert "## Padrão Arquitetural\nMicroservices" in resultado
     assert "- servico de saldo" in resultado
+    assert "### Conta" in resultado
+    assert "- numero" in resultado
+    assert "- saldo" in resultado
     assert "- sistema legado de contas" in resultado
+    assert "## Integrações Candidatas (sugeridas, a confirmar)\n- sistema de notificacao" in resultado
+    assert "### Consulta de saldo" in resultado
+    assert "1. autenticar" in resultado
+    assert "2. buscar saldo" in resultado
+    assert "3. exibir resultado" in resultado
     assert "### performance" in resultado
     assert "Requisito: responder em menos de 2s" in resultado
     assert "- indisponibilidade do sistema legado" in resultado
@@ -63,5 +88,8 @@ def test_format_solution_design_markdown_omits_empty_sections_gracefully():
     resultado = format_solution_design_markdown(sdd)
 
     assert "## Componentes\n(nenhum)" in resultado
+    assert "## Modelo de Domínio\n\n(nenhum)" in resultado
+    assert "## Integrações Candidatas (sugeridas, a confirmar)\n(nenhum)" in resultado
+    assert "## Fluxos Principais\n\n(nenhum)" in resultado
     assert "## Requisitos Não Funcionais\n\n(nenhum)" in resultado
     assert "## Decisões Arquiteturais (ADRs)\n\n(nenhum)" in resultado

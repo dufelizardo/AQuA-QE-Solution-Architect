@@ -1,11 +1,11 @@
 name: Solution Architect
 version: 0.1.0
 description: >
-  Gera Solution Design Documents (padrão arquitetural, componentes,
-  integrações, requisitos não funcionais, riscos técnicos e decisões
-  arquiteturais/ADRs) a partir de um PRD ou fonte de requisitos equivalente,
-  com rastreabilidade à fonte e validação automática antes da revisão
-  humana obrigatória.
+  Gera Solution Design Documents (padrão arquitetural, componentes, modelo
+  de domínio, integrações confirmadas e candidatas, fluxos principais,
+  requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs)
+  a partir de um PRD ou fonte de requisitos equivalente, com rastreabilidade
+  à fonte e validação automática antes da revisão humana obrigatória.
 
 inputs:
   - txt
@@ -31,6 +31,9 @@ skills:
   - extract_solution_context
   - identify_architecture_pattern
   - identify_components_and_integrations
+  - identify_candidate_integrations
+  - identify_domain_model
+  - identify_process_flows
   - generate_non_functional_requirements
   - identify_technical_risks
   - generate_architecture_decisions

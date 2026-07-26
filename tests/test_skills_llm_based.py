@@ -13,8 +13,13 @@ from aqua_qe_solution_architect.skills import (
     identify_architecture_pattern as identify_architecture_pattern_module,
 )
 from aqua_qe_solution_architect.skills import (
+    identify_candidate_integrations as identify_candidate_integrations_module,
+)
+from aqua_qe_solution_architect.skills import (
     identify_components_and_integrations as identify_components_and_integrations_module,
 )
+from aqua_qe_solution_architect.skills import identify_domain_model as identify_domain_model_module
+from aqua_qe_solution_architect.skills import identify_process_flows as identify_process_flows_module
 from aqua_qe_solution_architect.skills import identify_technical_risks as identify_technical_risks_module
 from aqua_qe_solution_architect.skills import refine_solution_design as refine_solution_design_module
 from aqua_qe_solution_architect.skills import review_solution_design as review_solution_design_module
@@ -86,11 +91,34 @@ def test_identify_components_and_integrations_maps_json_to_lists(monkeypatch):
     )
 
     componentes, integracoes = (
-        identify_components_and_integrations_module.identify_components_and_integrations("texto")
+        identify_components_and_integrations_module.identify_components_and_integrations(
+            "texto", "Microservices"
+        )
     )
 
     assert componentes == ["servico de saldo"]
     assert integracoes == ["sistema legado de contas"]
+
+
+def test_identify_components_and_integrations_converte_objeto_em_string(monkeypatch):
+    """Regressão: alguns modelos locais devolvem {"nome": ..., "descricao": ...} em vez de string simples."""
+    monkeypatch.setattr(
+        identify_components_and_integrations_module,
+        "complete_json",
+        lambda prompt, system="", model=None: {
+            "componentes": [{"nome": "Agendamento", "descricao": "agendamento automatizado"}],
+            "integracoes": [{"nome": "Sistema legado"}],
+        },
+    )
+
+    componentes, integracoes = (
+        identify_components_and_integrations_module.identify_components_and_integrations(
+            "texto", "Microservices"
+        )
+    )
+
+    assert componentes == ["Agendamento: agendamento automatizado"]
+    assert integracoes == ["Sistema legado"]
 
 
 def test_identify_components_and_integrations_defaults_to_empty(monkeypatch):
@@ -101,11 +129,91 @@ def test_identify_components_and_integrations_defaults_to_empty(monkeypatch):
     )
 
     componentes, integracoes = (
-        identify_components_and_integrations_module.identify_components_and_integrations("texto")
+        identify_components_and_integrations_module.identify_components_and_integrations(
+            "texto", "Microservices"
+        )
     )
 
     assert componentes == []
     assert integracoes == []
+
+
+def test_identify_candidate_integrations_maps_json_to_list(monkeypatch):
+    monkeypatch.setattr(
+        identify_candidate_integrations_module,
+        "complete_json",
+        lambda prompt, system="", model=None: {"integracoes_candidatas": ["SUS", "CNES"]},
+    )
+
+    resultado = identify_candidate_integrations_module.identify_candidate_integrations("texto")
+
+    assert resultado == ["SUS", "CNES"]
+
+
+def test_identify_candidate_integrations_defaults_to_empty(monkeypatch):
+    monkeypatch.setattr(
+        identify_candidate_integrations_module, "complete_json", lambda prompt, system="", model=None: {}
+    )
+
+    assert identify_candidate_integrations_module.identify_candidate_integrations("texto") == []
+
+
+def test_identify_domain_model_maps_json_to_entities(monkeypatch):
+    monkeypatch.setattr(
+        identify_domain_model_module,
+        "complete_json",
+        lambda prompt, system="", model=None: {
+            "entidades": [
+                {"nome": "Paciente", "atributos": ["cpf", "nome"], "trecho_fonte": "trecho 1"}
+            ]
+        },
+    )
+
+    resultado = identify_domain_model_module.identify_domain_model("texto")
+
+    assert len(resultado) == 1
+    assert resultado[0].name == "Paciente"
+    assert resultado[0].attributes == ["cpf", "nome"]
+    assert resultado[0].source_reference == "trecho 1"
+
+
+def test_identify_domain_model_defaults_to_empty(monkeypatch):
+    monkeypatch.setattr(
+        identify_domain_model_module, "complete_json", lambda prompt, system="", model=None: {}
+    )
+
+    assert identify_domain_model_module.identify_domain_model("texto") == []
+
+
+def test_identify_process_flows_maps_json_to_flows(monkeypatch):
+    monkeypatch.setattr(
+        identify_process_flows_module,
+        "complete_json",
+        lambda prompt, system="", model=None: {
+            "fluxos": [
+                {
+                    "nome": "Fluxo de agendamento",
+                    "passos": ["solicitar horario", "confirmar"],
+                    "trecho_fonte": "trecho 1",
+                }
+            ]
+        },
+    )
+
+    resultado = identify_process_flows_module.identify_process_flows("texto")
+
+    assert len(resultado) == 1
+    assert resultado[0].name == "Fluxo de agendamento"
+    assert resultado[0].steps == ["solicitar horario", "confirmar"]
+    assert resultado[0].source_reference == "trecho 1"
+
+
+def test_identify_process_flows_defaults_to_empty(monkeypatch):
+    monkeypatch.setattr(
+        identify_process_flows_module, "complete_json", lambda prompt, system="", model=None: {}
+    )
+
+    assert identify_process_flows_module.identify_process_flows("texto") == []
 
 
 def test_generate_non_functional_requirements_maps_json_to_models(monkeypatch):
@@ -256,7 +364,10 @@ def test_refine_solution_design_rewrites_fields_from_answers(monkeypatch):
             "padrao_arquitetural": "Microservices",
             "justificativa": "justificativa",
             "componentes": ["c1"],
+            "modelo_dominio": [{"nome": "Paciente", "atributos": ["cpf"]}],
             "integracoes": ["i1"],
+            "integracoes_candidatas": ["SUS"],
+            "fluxos": [{"nome": "Agendamento", "passos": ["passo 1"]}],
             "nfrs": [
                 {"categoria": "performance", "requisito": "r", "rationale": "ra"}
             ],
@@ -281,3 +392,33 @@ def test_refine_solution_design_rewrites_fields_from_answers(monkeypatch):
     assert resultado.title == "titulo refinado"
     assert resultado.non_functional_requirements[0].category == "performance"
     assert resultado.decisions[0].id == "ADR-001"
+    assert resultado.domain_model[0].name == "Paciente"
+    assert resultado.domain_model[0].attributes == ["cpf"]
+    assert resultado.candidate_integrations == ["SUS"]
+    assert resultado.process_flows[0].name == "Agendamento"
+    assert resultado.process_flows[0].steps == ["passo 1"]
+
+
+def test_refine_solution_design_preserva_campos_sem_resposta_relacionada(monkeypatch):
+    """Sem modelo_dominio/fluxos/integracoes_candidatas na resposta do LLM, mantém os valores atuais."""
+    monkeypatch.setattr(
+        refine_solution_design_module,
+        "complete_json",
+        lambda prompt, system="", model=None: {"titulo": "novo titulo"},
+    )
+
+    sdd = _sdd(
+        title="titulo antigo",
+        candidate_integrations=["SUS"],
+    )
+    from aqua_qe_solution_architect.models import DomainEntity, ProcessFlow
+
+    sdd.domain_model = [DomainEntity(name="Paciente", attributes=["cpf"], source_reference="f")]
+    sdd.process_flows = [ProcessFlow(name="Agendamento", steps=["passo 1"], source_reference="f")]
+
+    resultado = refine_solution_design_module.refine_solution_design(sdd, [])
+
+    assert resultado.title == "novo titulo"
+    assert resultado.candidate_integrations == ["SUS"]
+    assert resultado.domain_model[0].name == "Paciente"
+    assert resultado.process_flows[0].name == "Agendamento"

@@ -1,7 +1,9 @@
 from aqua_qe_solution_architect.models import (
     ArchitectureDecision,
     ArtifactStatus,
+    DomainEntity,
     NonFunctionalRequirement,
+    ProcessFlow,
     SolutionDesign,
 )
 from aqua_qe_solution_architect.workflow import generate_solution_design as workflow_module
@@ -19,7 +21,20 @@ def _stub_geracao(monkeypatch, com_nfr=True, com_decisao=True):
     monkeypatch.setattr(
         workflow_module,
         "identify_components_and_integrations",
-        lambda texto: (["componente"], ["integracao"]),
+        lambda texto, padrao: (["componente"], ["integracao"]),
+    )
+    monkeypatch.setattr(
+        workflow_module, "identify_candidate_integrations", lambda texto: ["integracao candidata"]
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "identify_domain_model",
+        lambda texto: [DomainEntity(name="Entidade", attributes=["atributo"], source_reference="f")],
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "identify_process_flows",
+        lambda texto: [ProcessFlow(name="Fluxo", steps=["passo"], source_reference="f")],
     )
     monkeypatch.setattr(
         workflow_module,
@@ -58,6 +73,9 @@ def test_generate_solution_design_happy_path_marks_draft_validated_when_review_a
     assert sdd.title == "titulo"
     assert sdd.architecture_pattern == "Microservices"
     assert sdd.components == ["componente"]
+    assert sdd.domain_model[0].name == "Entidade"
+    assert sdd.candidate_integrations == ["integracao candidata"]
+    assert sdd.process_flows[0].name == "Fluxo"
     assert sdd.review_notes == []
 
 

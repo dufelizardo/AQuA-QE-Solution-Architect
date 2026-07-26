@@ -10,6 +10,8 @@ O agente nunca gera um componente, integração, NFR, risco ou decisão arquitet
 
 `identify_components_and_integrations` só lista integrações citadas ou claramente inferíveis no texto de entrada. Na ausência de evidência, a lista de integrações fica vazia — nunca preenchida por suposição de "toda solução moderna provavelmente integra com X".
 
+**Distinção de `candidate_integrations`**: para cobrir integrações prováveis de domínio (ex.: um sistema de saúde pública brasileiro tipicamente considera SUS/CNES/e-SUS) sem violar este guardrail, existe um campo **separado**, `candidate_integrations`, preenchido por `identify_candidate_integrations` — explicitamente uma sugestão a confirmar, nunca um fato. As duas listas nunca se misturam (RULE-SA-11); `integrations` continua exigindo evidência textual, sem exceção.
+
 ## GR-SA-3 — Toda decisão arquitetural relevante deve possuir justificativa (ADR ou equivalente)
 
 `generate_architecture_decisions` produz um `ArchitectureDecision` para cada decisão relevante identificada; `validate_solution_design` reprova um Solution Design sem nenhuma decisão registrada.

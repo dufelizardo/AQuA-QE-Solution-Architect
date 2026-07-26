@@ -8,7 +8,14 @@ _SYSTEM = (
     "decisão relevante precisa de um ADR. Sempre que houver mais de uma "
     "alternativa viável, liste-as em 'alternativas_consideradas' — nunca "
     "apresente a decisão como se fosse a única opção possível quando não "
-    "for o caso."
+    "for o caso. As 'consequencias' devem sempre trazer o que passa a ser "
+    "verdade depois da decisão, incluindo trade-offs aceitos — nunca só "
+    "benefícios, sempre também o custo/risco assumido. Considere "
+    "explicitamente, quando o contexto sustentar, decisões sobre "
+    "persistência de dados (relacional/NoSQL/cache), segurança "
+    "(autenticação/autorização/criptografia) e estratégia de "
+    "escalabilidade como candidatas a ADR, além da escolha do padrão "
+    "arquitetural em si."
 )
 
 

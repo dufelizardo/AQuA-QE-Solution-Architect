@@ -3,7 +3,10 @@ from ..skills.extract_solution_context import extract_solution_context
 from ..skills.generate_architecture_decisions import generate_architecture_decisions
 from ..skills.generate_non_functional_requirements import generate_non_functional_requirements
 from ..skills.identify_architecture_pattern import identify_architecture_pattern
+from ..skills.identify_candidate_integrations import identify_candidate_integrations
 from ..skills.identify_components_and_integrations import identify_components_and_integrations
+from ..skills.identify_domain_model import identify_domain_model
+from ..skills.identify_process_flows import identify_process_flows
 from ..skills.identify_technical_risks import identify_technical_risks
 from ..skills.refine_solution_design import refine_solution_design as _refinar_campos
 from ..skills.review_solution_design import review_solution_design
@@ -36,7 +39,10 @@ def generate_solution_design(texto: str) -> SolutionDesign:
     """Gera o Solution Design Document a partir de uma fonte de texto (PRD ou equivalente), orquestrando a sequência padrão de skills."""
     titulo, contexto = extract_solution_context(texto)
     padrao, justificativa = identify_architecture_pattern(texto)
-    componentes, integracoes = identify_components_and_integrations(texto)
+    componentes, integracoes = identify_components_and_integrations(texto, padrao)
+    candidatas = identify_candidate_integrations(texto)
+    modelo_dominio = identify_domain_model(texto)
+    fluxos = identify_process_flows(texto)
     nfrs = generate_non_functional_requirements(texto)
     riscos = identify_technical_risks(texto)
     decisoes = generate_architecture_decisions(padrao, justificativa, componentes, integracoes, texto)
@@ -48,7 +54,10 @@ def generate_solution_design(texto: str) -> SolutionDesign:
         architecture_pattern=padrao,
         pattern_rationale=justificativa,
         components=componentes,
+        domain_model=modelo_dominio,
         integrations=integracoes,
+        candidate_integrations=candidatas,
+        process_flows=fluxos,
         non_functional_requirements=nfrs,
         technical_risks=riscos,
         decisions=decisoes,

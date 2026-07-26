@@ -90,16 +90,19 @@ Um prompt sempre pergunta se você aceita o Solution Design, com ou sem `--refin
 
 `docs/agent/`, `docs/standards/` e `knowledge/methodology/`/`knowledge/templates/` estão com conteúdo real preenchido.
 
-Em `src/`, as 19 skills e o único workflow estão implementados e funcionam de ponta a ponta com modelos locais via Ollama:
+Em `src/`, as 22 skills e o único workflow estão implementados e funcionam de ponta a ponta com modelos locais via Ollama:
 
 - `read_text_file`, `read_jira_issue`, `read_confluence_page` (leitura apenas) e `parse_chat_transcript`/`format_chat_transcript` (normalização de chat, Python puro, sem LLM) preparam o texto de entrada.
 - `get_confluence_publish_location`, `create_confluence_page` e `update_confluence_page` publicam/atualizam o resultado no Confluence (**escrita**, diferente das demais integrações que só leem) — sempre atrás de confirmação humana explícita, sempre como página irmã da página de origem do PRD.
 - `extract_solution_context` (LLM `mistral`) extrai título e contexto/problema.
 - `identify_architecture_pattern` (LLM `mistral`) escolhe um padrão só entre os do catálogo fechado em `knowledge/methodology/architecture_patterns.md` — nunca inventa um padrão fora dele (GR-SA-1).
-- `identify_components_and_integrations` (LLM `mistral`) identifica componentes e integrações citados/inferíveis no texto (GR-SA-2: nunca assumir integração sem evidência).
-- `generate_non_functional_requirements` (LLM `mistral`) gera NFRs categorizados conforme ISO/IEC 25010, cada um com `rationale` rastreável (GR-SA-6).
+- `identify_components_and_integrations` (LLM `mistral`) identifica componentes — estruturados conforme o padrão arquitetural já escolhido — e integrações citadas/inferíveis no texto (GR-SA-2: nunca assumir integração sem evidência).
+- `identify_candidate_integrations` (LLM `mistral`) sugere integrações comuns para o domínio (ex.: SUS/CNES/e-SUS para saúde pública) mesmo sem citação explícita — sempre como recomendação a confirmar, nunca como fato, em campo/seção separados das integrações confirmadas (RULE-SA-11).
+- `identify_domain_model` (LLM `mistral`) identifica as principais entidades e atributos do modelo de domínio, só quando evidenciados/inferíveis do texto (GR-SA-1).
+- `identify_process_flows` (LLM `mistral`) identifica os principais fluxos de processo e seus passos, só quando evidenciados/inferíveis do texto (GR-SA-1).
+- `generate_non_functional_requirements` (LLM `mistral`) gera NFRs categorizados conforme ISO/IEC 25010 (definições de cada categoria embutidas no prompt), cada um com `rationale` rastreável (GR-SA-6) e quantificado quando o texto sustentar.
 - `identify_technical_risks` (LLM `mistral`) identifica riscos técnicos, sem omitir nenhum citado na fonte (GR-SA-7).
-- `generate_architecture_decisions` (LLM `mistral`) gera os ADRs, com alternativas explícitas quando houver mais de uma opção viável (GR-SA-4).
+- `generate_architecture_decisions` (LLM `mistral`) gera os ADRs, com alternativas e consequências positivas/negativas explícitas (GR-SA-4), considerando persistência, segurança e escalabilidade como candidatas a ADR.
 - `validate_solution_design` (Python puro) roda o checklist automático antes de pagar o custo da revisão por LLM.
 - `review_solution_design` (LLM revisor `phi4`, independente do gerador) avalia o Solution Design.
 - `generate_sdd_clarifying_questions`/`refine_solution_design` (LLM `mistral`) implementam o ciclo de refinamento humano-no-loop.

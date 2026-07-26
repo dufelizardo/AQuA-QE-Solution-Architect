@@ -33,7 +33,7 @@ Esses documentos não são decoração: `identify_architecture_pattern` rejeita 
 Oito guardrails, fornecidos originalmente como especificação do agente e de prioridade igual entre si — nenhum subordinado aos outros — governam o comportamento do agente (`docs/agent/guardrails.md`):
 
 - **GR-SA-1 — Nunca inventar requisitos funcionais não presentes no PRD.** Todo componente, integração, NFR, risco ou decisão é rastreável à fonte; `identify_architecture_pattern` só escolhe entre o catálogo fechado.
-- **GR-SA-2 — Nunca assumir integrações sem evidência documental.** `identify_components_and_integrations` deixa a lista vazia na ausência de evidência, em vez de supor "toda solução moderna provavelmente integra com X".
+- **GR-SA-2 — Nunca assumir integrações sem evidência documental.** `identify_components_and_integrations` deixa a lista vazia na ausência de evidência, em vez de supor "toda solução moderna provavelmente integra com X". Integrações prováveis por conhecimento de domínio (ex.: SUS/CNES para saúde pública) ficam num campo separado, `candidate_integrations`, sempre rotulado como sugestão a confirmar — nunca misturado com integrações confirmadas (RULE-SA-11).
 - **GR-SA-3 — Toda decisão arquitetural relevante deve possuir um ADR.** `validate_solution_design` reprova um Solution Design sem nenhuma decisão registrada.
 - **GR-SA-4 — Sempre explicitar trade-offs entre alternativas.** Todo `ArchitectureDecision` tem `alternatives_considered`; o prompt nunca apresenta uma decisão como única opção possível quando não é o caso.
 - **GR-SA-5 — Não recomendar tecnologias incompatíveis com os padrões da organização sem registrar a justificativa.** Cobertura parcial nesta fase: não existe ainda uma fonte de "padrões tecnológicos da organização" como entrada — documentado como guardrail que só se torna totalmente verificável em uma fase futura.
@@ -42,7 +42,7 @@ Oito guardrails, fornecidos originalmente como especificação do agente e de pr
 - **GR-SA-8 — Diagramas, componentes e contratos devem permanecer consistentes entre si.** Não aplicável nesta fase: diagramas (C4) e contratos de API não existem ainda no agente.
 - **Guardrail transversal — Sem aprovação automática.** Independentemente dos oito acima serem satisfeitos, o agente nunca marca um Solution Design como "aprovado" — apenas como **rascunho validado** (`draft_validated`). A aprovação final é sempre um ato humano (mesmo princípio de GR-1 no Product Owner e GR-M no Product Manager).
 
-Esses guardrails viram regras formais e verificáveis (`RULE-SA-1` a `RULE-SA-9` em `docs/agent/rules.md`).
+Esses guardrails viram regras formais e verificáveis (`RULE-SA-1` a `RULE-SA-11` em `docs/agent/rules.md`).
 
 ## 4. Arquitetura
 
@@ -51,10 +51,13 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
    → read_text_file / parse_chat_transcript+format_chat_transcript (só chat) / read_jira_issue / read_confluence_page
    → extract_solution_context           (LLM gerador — título + contexto/problema)
    → identify_architecture_pattern      (LLM gerador — só entre o catálogo fechado, GR-SA-1)
-   → identify_components_and_integrations (LLM gerador — GR-SA-2)
+   → identify_components_and_integrations (LLM gerador — estruturado pelo padrão escolhido, GR-SA-2)
+   → identify_candidate_integrations     (LLM gerador — sugestões a confirmar, RULE-SA-11)
+   → identify_domain_model               (LLM gerador — entidades/atributos, GR-SA-1)
+   → identify_process_flows              (LLM gerador — fluxos/passos, GR-SA-1)
    → generate_non_functional_requirements  (LLM gerador — ISO/IEC 25010, GR-SA-6)
    → identify_technical_risks            (LLM gerador — GR-SA-7)
-   → generate_architecture_decisions     (LLM gerador — ADRs com alternativas, GR-SA-3/GR-SA-4)
+   → generate_architecture_decisions     (LLM gerador — ADRs com alternativas e consequências positivas/negativas, GR-SA-3/GR-SA-4)
    → validate_solution_design            (checklist Python puro)
    → review_solution_design              (LLM revisor independente — phi4)
    → [se reprovado] generate_sdd_clarifying_questions → resposta humana → refine_solution_design → revalidar
@@ -66,15 +69,15 @@ Diferente do Product Owner (que processa em duas fases — Épico primeiro, Stor
 
 Camadas do código (`src/aqua_qe_solution_architect/`):
 
-- **`models/`** — estruturas de dados: `SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, e o enum `ArtifactStatus` (`draft_validated` / `pending_clarification` / `accepted`).
-- **`skills/`** — 16 funções, cada uma com um único efeito colateral e uma única responsabilidade (ver seção 5).
+- **`models/`** — estruturas de dados: `SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, `DomainEntity`, `ProcessFlow`, e o enum `ArtifactStatus` (`draft_validated` / `pending_clarification` / `accepted`).
+- **`skills/`** — 22 funções, cada uma com um único efeito colateral e uma única responsabilidade (ver seção 5).
 - **`workflow/generate_solution_design.py`** — `generate_solution_design` (gera o SDD do zero a partir do texto) e `finalize_solution_design` (aplica validate→review, reaproveitável também após `refine_solution_design`).
 - **`orchestrator/solution_architect.py`** — ponto de entrada único (`handle_request(entrada)`).
-- **`services/`** — integrações externas: `llm_service` (Ollama), `jira_service`/`confluence_service` (REST API + httpx, **apenas leitura** nesta fase — não há hoje um caso de uso real que exija escrever de volta em Jira/Confluence a partir deste agente).
+- **`services/`** — integrações externas: `llm_service` (Ollama), `jira_service` (REST API + httpx, **apenas leitura**), `confluence_service` (REST API + httpx, **leitura e escrita** — escrita sempre atrás de confirmação humana explícita, ver seção 8).
 
 Deliberadamente **não existem** nesta fase: uma camada de geração/renderização de diagramas C4, um parser de contratos de API/OpenAPI, parsers de UML/BPMN/Swagger/schema de banco, e as 7 categorias adicionais de patterns (design/integration/distributed/cloud/security/data) + biblioteca de anti-patterns que fizeram parte da especificação original completa do agente. Cada um desses itens tem valor real, mas depende de um consumidor real ainda inexistente (mesmo princípio de "não construir sem consumidor" já aplicado à camada `Feature` do Product Owner) — ver seção 11.
 
-## 5. As 19 skills
+## 5. As 22 skills
 
 Skills sem LLM (Python puro, determinísticas):
 
@@ -84,7 +87,7 @@ Skills sem LLM (Python puro, determinísticas):
 
 Skills com LLM gerador (`OLLAMA_MODEL`, padrão `mistral`):
 
-- `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions`, `refine_solution_design`.
+- `extract_solution_context`, `identify_architecture_pattern`, `identify_components_and_integrations`, `identify_candidate_integrations`, `identify_domain_model`, `identify_process_flows`, `generate_non_functional_requirements`, `identify_technical_risks`, `generate_architecture_decisions`, `generate_sdd_clarifying_questions`, `refine_solution_design`.
 
 Skills com LLM revisor independente (`OLLAMA_REVIEW_MODEL`, padrão `phi4` — deliberadamente um modelo diferente do gerador, para mitigar *self-preference bias*):
 

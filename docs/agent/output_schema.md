@@ -1,6 +1,6 @@
 # Output Schema
 
-> Estrutura de dados retornada por `generate_solution_design` e exportada por `format_solution_design_markdown`, alinhada a `../../knowledge/templates/solution_design.md`. Implementada como dataclasses reais em `../../src/aqua_qe_solution_architect/models/` (`SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`) — o JSON abaixo é a representação conceitual.
+> Estrutura de dados retornada por `generate_solution_design` e exportada por `format_solution_design_markdown`, alinhada a `../../knowledge/templates/solution_design.md`. Implementada como dataclasses reais em `../../src/aqua_qe_solution_architect/models/` (`SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, `DomainEntity`, `ProcessFlow`) — o JSON abaixo é a representação conceitual.
 
 ## Schema do Solution Design Document (SDD)
 
@@ -11,8 +11,23 @@
   "context_problem": "<string — resumo do problema de negócio, extraído da fonte>",
   "architecture_pattern": "<um item do catálogo em architecture_patterns.md — nunca inventado (GR-SA-1)>",
   "pattern_rationale": "<string — por que este padrão, não outro>",
-  "components": ["<componente de alto nível identificado>"],
+  "components": ["<componente de alto nível, estruturado conforme o padrão escolhido>"],
+  "domain_model": [
+    {
+      "name": "<entidade do modelo de domínio, ex.: Paciente — nunca inventada (GR-SA-1)>",
+      "attributes": ["<atributo evidenciado/inferível do texto>"],
+      "source_reference": "<trecho da fonte>"
+    }
+  ],
   "integrations": ["<integração citada/inferível — nunca assumida sem evidência (GR-SA-2)>"],
+  "candidate_integrations": ["<integração sugerida por conhecimento de domínio — sempre recomendação a confirmar, nunca fato (RULE-SA-11)>"],
+  "process_flows": [
+    {
+      "name": "<fluxo de processo, ex.: Fluxo de agendamento — nunca inventado (GR-SA-1)>",
+      "steps": ["<passo em ordem, evidenciado/inferível do texto>"],
+      "source_reference": "<trecho da fonte>"
+    }
+  ],
   "non_functional_requirements": [
     {
       "category": "performance | escalabilidade | seguranca | disponibilidade | observabilidade | manutenibilidade",

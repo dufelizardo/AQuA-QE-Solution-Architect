@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 
 from .architecture_decision import ArchitectureDecision
+from .domain_entity import DomainEntity
 from .non_functional_requirement import NonFunctionalRequirement
+from .process_flow import ProcessFlow
 from .status import ArtifactStatus
 
 
@@ -15,7 +17,10 @@ class SolutionDesign:
     architecture_pattern: str
     pattern_rationale: str
     components: list[str] = field(default_factory=list)
+    domain_model: list[DomainEntity] = field(default_factory=list)
     integrations: list[str] = field(default_factory=list)
+    candidate_integrations: list[str] = field(default_factory=list)
+    process_flows: list[ProcessFlow] = field(default_factory=list)
     non_functional_requirements: list[NonFunctionalRequirement] = field(default_factory=list)
     technical_risks: list[str] = field(default_factory=list)
     decisions: list[ArchitectureDecision] = field(default_factory=list)
