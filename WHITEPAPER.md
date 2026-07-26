@@ -144,6 +144,7 @@ O usuário forneceu, ao especificar este agente, uma visão de produto madura e 
 - **`--sdd-existente`** (parser inverso do Markdown exportado) — mesmo padrão em que `--epic-existente`/`--story-existente` foram construídos como incremento *posterior* às features base no Product Owner, não desde o início.
 - **GR-SA-5** (compatibilidade com padrões tecnológicos da organização) — não há hoje uma fonte de entrada de "padrões da empresa"; guardrail documentado, mas só totalmente verificável quando essa fonte existir.
 - **RAG/memória de projeto** (`docs/agent/memory.md`) — `knowledge/methodology/` tem apenas 3 arquivos nesta fase, pequenos o suficiente para caber direto no prompt sem busca semântica; RAG fica para quando o catálogo de patterns crescer o suficiente para não caber mais.
+- **Frameworks formais de descrição/avaliação de arquitetura** (TOGAF, Zachman, Arc42, ISO/IEC/IEEE 42010, ISO/IEC 12207, QAW, ATAM) — citados na especificação original do agente para fundamentar como documentar e avaliar formalmente uma arquitetura; nenhum foi adotado nesta fase (`knowledge/methodology/` cobre só o necessário ao escopo atual). Adotá-los sem um consumidor real (ex.: um cliente exigindo documentação formal em Arc42) seria especulativo.
 
 ## 12. Como executar
 
