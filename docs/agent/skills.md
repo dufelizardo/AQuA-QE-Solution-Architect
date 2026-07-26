@@ -107,7 +107,7 @@
 
 - **Descrição**: valida se o Solution Design tem título, contexto, padrão arquitetural com justificativa, ao menos um NFR e ao menos uma decisão arquitetural registrada.
 - **Entrada**: `sdd: SolutionDesign`.
-- **Saída**: `bool` — indica se passa no checklist automático (não decide aceitação humana).
+- **Saída**: `list[str]` — motivos específicos de reprovação (lista vazia = aprovado no checklist; não decide aceitação humana). `finalize_solution_design` grava esses motivos em `sdd.review_notes` quando o checklist reprova, para que o usuário sempre veja por que — inclusive antes de qualquer revisão por LLM rodar.
 - **Efeitos colaterais**: nenhum — Python puro, sem LLM.
 - **Erros esperados**: nenhum.
 - **Dependências**: consome a saída de `generate_solution_design`/`refine_solution_design`.
@@ -128,7 +128,7 @@
 - **Saída**: `list[str]`; vazia se não houver `review_notes`.
 - **Efeitos colaterais**: chamada ao LLM local.
 - **Erros esperados**: resposta do LLM não é JSON válido (`ValueError`).
-- **Dependências**: consome `review_notes`, preenchido por `review_solution_design`.
+- **Dependências**: consome `review_notes`, preenchido por `validate_solution_design` (motivos do checklist) ou `review_solution_design` (apontamentos do revisor), via `finalize_solution_design`.
 
 ## refine_solution_design
 

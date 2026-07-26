@@ -100,7 +100,7 @@ Full input/output/error detail for each skill is in `docs/agent/skills.md`.
 
 The same core principle from the Product Owner applies here: when review flags a problem, the agent doesn't try to self-correct by guessing the right answer.
 
-1. `review_solution_design` rejects the design and produces `review_notes` — concrete findings (e.g., "the chosen pattern doesn't justify the high-availability requirement cited in the PRD", "the messaging decision doesn't record the alternatives considered").
+1. A Solution Design arrives rejected with `review_notes` populated one of two ways: `validate_solution_design` rejects the automatic checklist and records the specific reasons (e.g., "no architecture decision (ADR) recorded") — without spending an LLM reviewer call; or, if the checklist passes, `review_solution_design` rejects with concrete findings (e.g., "the chosen pattern doesn't justify the high-availability requirement cited in the PRD", "the messaging decision doesn't record the alternatives considered"). Either way, the user always sees the exact reason — never just a status with no explanation.
 2. `generate_sdd_clarifying_questions` turns each finding into a direct, actionable question.
 3. The CLI (`run.py --refinar`) presents the questions in the terminal; **a real human answers**.
 4. `refine_solution_design` rewrites the affected fields using the answers as real context — preserving the text/level of detail of fields the answers don't address (the same care built in from the start of this project, learned from a real bug fixed in `refine_prd`/`refine_epic_metadata` in the Product Owner).

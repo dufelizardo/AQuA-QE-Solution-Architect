@@ -35,7 +35,7 @@
   ],
   "source_reference": "<texto de origem completo, para rastreabilidade — GR-1>",
   "status": "draft_validated | pending_clarification | accepted",
-  "review_notes": ["<apontamento do revisor (review_solution_design), se houver>"]
+  "review_notes": ["<motivo de reprovação do checklist (validate_solution_design) OU apontamento do revisor (review_solution_design), se houver>"]
 }
 ```
 

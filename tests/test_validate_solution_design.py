@@ -30,28 +30,37 @@ def _sdd_completo(**overrides) -> SolutionDesign:
 
 
 def test_valid_solution_design_passes():
-    assert validate_solution_design(_sdd_completo()) is True
+    assert validate_solution_design(_sdd_completo()) == []
 
 
 def test_missing_title_fails():
-    assert validate_solution_design(_sdd_completo(title="")) is False
+    assert "título ausente" in validate_solution_design(_sdd_completo(title=""))
 
 
 def test_missing_context_fails():
-    assert validate_solution_design(_sdd_completo(context_problem="")) is False
+    assert "contexto do problema ausente" in validate_solution_design(_sdd_completo(context_problem=""))
 
 
 def test_missing_pattern_fails():
-    assert validate_solution_design(_sdd_completo(architecture_pattern="")) is False
+    assert "padrão arquitetural ausente" in validate_solution_design(_sdd_completo(architecture_pattern=""))
 
 
 def test_missing_pattern_rationale_fails():
-    assert validate_solution_design(_sdd_completo(pattern_rationale="")) is False
+    motivos = validate_solution_design(_sdd_completo(pattern_rationale=""))
+    assert "justificativa do padrão arquitetural ausente" in motivos
 
 
 def test_no_nfrs_fails():
-    assert validate_solution_design(_sdd_completo(non_functional_requirements=[])) is False
+    motivos = validate_solution_design(_sdd_completo(non_functional_requirements=[]))
+    assert "nenhum requisito não funcional identificado" in motivos
 
 
 def test_no_decisions_fails():
-    assert validate_solution_design(_sdd_completo(decisions=[])) is False
+    motivos = validate_solution_design(_sdd_completo(decisions=[]))
+    assert "nenhuma decisão arquitetural (ADR) registrada" in motivos
+
+
+def test_multiplos_motivos_acumulam_em_vez_de_parar_no_primeiro():
+    motivos = validate_solution_design(_sdd_completo(title="", decisions=[]))
+    assert "título ausente" in motivos
+    assert "nenhuma decisão arquitetural (ADR) registrada" in motivos

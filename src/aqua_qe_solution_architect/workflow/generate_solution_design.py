@@ -12,8 +12,10 @@ from ..skills.validate_solution_design import validate_solution_design
 
 def finalize_solution_design(sdd: SolutionDesign) -> SolutionDesign:
     """Aplica o checklist automático e a revisão por LLM, decidindo o status final do Solution Design."""
-    if not validate_solution_design(sdd):
+    motivos_checklist = validate_solution_design(sdd)
+    if motivos_checklist:
         sdd.status = ArtifactStatus.PENDING_CLARIFICATION
+        sdd.review_notes = motivos_checklist
         return sdd
 
     revisao = review_solution_design(sdd)

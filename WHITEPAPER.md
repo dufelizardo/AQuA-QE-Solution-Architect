@@ -100,7 +100,7 @@ Detalhamento completo de entrada/saída/erros de cada skill em `docs/agent/skill
 
 O mesmo princípio central do Product Owner se aplica aqui: quando a revisão aponta um problema, o agente não tenta se autocorrigir adivinhando a resposta certa.
 
-1. `review_solution_design` reprova e produz `review_notes` — apontamentos concretos (ex.: "padrão escolhido não justifica bem o requisito de alta disponibilidade citado no PRD", "decisão sobre mensageria não registra alternativas consideradas").
+1. Um Solution Design chega reprovado com `review_notes` preenchido de uma de duas formas: `validate_solution_design` reprova o checklist automático e grava os motivos específicos (ex.: "nenhuma decisão arquitetural (ADR) registrada") — sem gastar uma chamada de LLM revisor; ou, se o checklist passa, `review_solution_design` reprova com apontamentos concretos (ex.: "padrão escolhido não justifica bem o requisito de alta disponibilidade citado no PRD", "decisão sobre mensageria não registra alternativas consideradas"). Em ambos os casos, o usuário sempre vê o motivo exato — nunca só um status sem explicação.
 2. `generate_sdd_clarifying_questions` transforma cada apontamento em uma pergunta objetiva e acionável.
 3. O CLI (`run.py --refinar`) apresenta as perguntas no terminal; **um humano real responde**.
 4. `refine_solution_design` reescreve os campos afetados usando as respostas como contexto real — preservando o texto/nível de detalhe dos campos que as respostas não abordam (mesmo cuidado aplicado desde o início do projeto, aprendido com um bug real corrigido em `refine_prd`/`refine_epic_metadata` no Product Owner).

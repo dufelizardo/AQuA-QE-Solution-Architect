@@ -90,6 +90,8 @@ def test_generate_solution_design_validate_failure_skips_review(monkeypatch):
 
     assert sdd.status == ArtifactStatus.PENDING_CLARIFICATION
     assert chamou_review["valor"] is False
+    assert "nenhum requisito não funcional identificado" in sdd.review_notes
+    assert "nenhuma decisão arquitetural (ADR) registrada" in sdd.review_notes
 
 
 def _sdd_completo() -> SolutionDesign:
@@ -109,16 +111,17 @@ def _sdd_completo() -> SolutionDesign:
 
 
 def test_finalize_solution_design_marca_pending_clarification_quando_validate_falha(monkeypatch):
-    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: False)
+    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: ["título ausente"])
 
     sdd = SolutionDesign(id="SDD-001", title="", context_problem="", architecture_pattern="", pattern_rationale="")
     resultado = workflow_module.finalize_solution_design(sdd)
 
     assert resultado.status == ArtifactStatus.PENDING_CLARIFICATION
+    assert resultado.review_notes == ["título ausente"]
 
 
 def test_finalize_solution_design_marca_draft_validated_quando_tudo_aprova(monkeypatch):
-    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: True)
+    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: [])
     monkeypatch.setattr(
         workflow_module, "review_solution_design", lambda sdd: {"aprovado": True, "problemas": []}
     )
@@ -159,7 +162,7 @@ def test_refine_and_finalize_solution_design_revalida_e_revisa_apos_o_refino(mon
             ],
         ),
     )
-    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: True)
+    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: [])
     monkeypatch.setattr(
         workflow_module, "review_solution_design", lambda sdd: {"aprovado": True, "problemas": []}
     )
