@@ -5,6 +5,7 @@ from ..skills.generate_non_functional_requirements import generate_non_functiona
 from ..skills.identify_architecture_pattern import identify_architecture_pattern
 from ..skills.identify_components_and_integrations import identify_components_and_integrations
 from ..skills.identify_technical_risks import identify_technical_risks
+from ..skills.refine_solution_design import refine_solution_design as _refinar_campos
 from ..skills.review_solution_design import review_solution_design
 from ..skills.validate_solution_design import validate_solution_design
 
@@ -21,6 +22,12 @@ def finalize_solution_design(sdd: SolutionDesign) -> SolutionDesign:
         ArtifactStatus.DRAFT_VALIDATED if revisao["aprovado"] else ArtifactStatus.PENDING_CLARIFICATION
     )
     return sdd
+
+
+def refine_and_finalize_solution_design(sdd: SolutionDesign, respostas: list[dict]) -> SolutionDesign:
+    """Reescreve o Solution Design com as respostas do usuário e reaplica validate/review, atualizando status e review_notes."""
+    sdd_refinado = _refinar_campos(sdd, respostas)
+    return finalize_solution_design(sdd_refinado)
 
 
 def generate_solution_design(texto: str) -> SolutionDesign:

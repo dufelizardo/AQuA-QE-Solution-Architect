@@ -23,7 +23,9 @@ from aqua_qe_solution_architect.skills.parse_chat_transcript import parse_chat_t
 from aqua_qe_solution_architect.skills.read_confluence_page import read_confluence_page  # noqa: E402
 from aqua_qe_solution_architect.skills.read_jira_issue import read_jira_issue  # noqa: E402
 from aqua_qe_solution_architect.skills.read_text_file import read_text_file  # noqa: E402
-from aqua_qe_solution_architect.skills.refine_solution_design import refine_solution_design  # noqa: E402
+from aqua_qe_solution_architect.workflow.generate_solution_design import (  # noqa: E402
+    refine_and_finalize_solution_design,
+)
 
 
 def _ler_entrada(args: argparse.Namespace) -> str:
@@ -72,7 +74,7 @@ def _ciclo_de_refinamento(sdd: SolutionDesign) -> SolutionDesign:
             resposta = input(f"  {pergunta}\n  > ")
             respostas.append({"pergunta": pergunta, "resposta": resposta})
 
-        sdd = refine_solution_design(sdd, respostas)
+        sdd = refine_and_finalize_solution_design(sdd, respostas)
         print("\n--- Solution Design refinado ---")
         _imprimir_sdd(sdd)
 

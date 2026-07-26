@@ -126,3 +126,45 @@ def test_finalize_solution_design_marca_draft_validated_quando_tudo_aprova(monke
     resultado = workflow_module.finalize_solution_design(_sdd_completo())
 
     assert resultado.status == ArtifactStatus.DRAFT_VALIDATED
+
+
+def test_refine_and_finalize_solution_design_revalida_e_revisa_apos_o_refino(monkeypatch):
+    """Regressão: refinar sem revalidar deixava status/review_notes obsoletos para sempre (bug real, não escopo adiado)."""
+    sdd = SolutionDesign(
+        id="SDD-001",
+        title="t",
+        context_problem="c",
+        architecture_pattern="",
+        pattern_rationale="",
+        review_notes=["padrão arquitetural ausente"],
+    )
+    monkeypatch.setattr(
+        workflow_module,
+        "_refinar_campos",
+        lambda sdd, respostas: SolutionDesign(
+            id="SDD-001",
+            title="t",
+            context_problem="c",
+            architecture_pattern="Microservices",
+            pattern_rationale="j",
+            non_functional_requirements=[
+                NonFunctionalRequirement(
+                    category="performance", requirement="r", rationale="ra", source_reference="f"
+                )
+            ],
+            decisions=[
+                ArchitectureDecision(
+                    id="ADR-001", title="t", context="c", decision="d", consequences="co", source_reference="f"
+                )
+            ],
+        ),
+    )
+    monkeypatch.setattr(workflow_module, "validate_solution_design", lambda sdd: True)
+    monkeypatch.setattr(
+        workflow_module, "review_solution_design", lambda sdd: {"aprovado": True, "problemas": []}
+    )
+
+    resultado = workflow_module.refine_and_finalize_solution_design(sdd, [{"pergunta": "p", "resposta": "r"}])
+
+    assert resultado.status == ArtifactStatus.DRAFT_VALIDATED
+    assert resultado.review_notes == []
