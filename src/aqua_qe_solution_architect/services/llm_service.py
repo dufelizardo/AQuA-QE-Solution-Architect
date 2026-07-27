@@ -32,6 +32,11 @@ _CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1"
 _DEFAULT_GOOGLE_MODEL = "gemini-3.5-flash"
 _DEFAULT_GOOGLE_REVIEW_MODEL = "gemini-2.5-flash-lite"
 _GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+# Sem isso, a resposta vem truncada em conteúdo real mais rico (achado ao vivo processando
+# um PRD real de verdade) — o default de max_tokens da API do Google é pequeno demais para
+# esse agente. Aplicado a qualquer modelo Google, não chaveado por modelo (ainda sem dados
+# de tuning por modelo, diferente do NVIDIA).
+_GOOGLE_DEFAULT_PARAMS: dict = {"max_tokens": 8192}
 
 # Parâmetros de sampling recomendados pela NVIDIA por modelo NIM (build.nvidia.com/playground)
 # — chaveados por nome do modelo, não por papel (gerador/revisor), para continuar corretos se
@@ -97,7 +102,12 @@ def reviewer_model() -> str:
 def _chat(modelo: str, messages: list[dict], json_mode: bool) -> str:
     provider = _provider()
     if provider in ("nvidia", "cerebras", "google"):
-        kwargs = _nvidia_params(modelo) if provider == "nvidia" else {}
+        if provider == "nvidia":
+            kwargs = _nvidia_params(modelo)
+        elif provider == "google":
+            kwargs = dict(_GOOGLE_DEFAULT_PARAMS)
+        else:
+            kwargs = {}
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
         if provider == "nvidia":

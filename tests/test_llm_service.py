@@ -223,7 +223,7 @@ def test_complete_json_dispatches_to_google_when_provider_is_google(monkeypatch)
 
     assert resultado == {"ok": True}
     assert captured["model"] == "gemini-3.5-flash"
-    assert captured["kwargs"] == {"response_format": {"type": "json_object"}}
+    assert captured["kwargs"] == {"max_tokens": 8192, "response_format": {"type": "json_object"}}
 
 
 def test_complete_json_uses_deepseek_reasoning_params_when_explicitly_selected(monkeypatch):
