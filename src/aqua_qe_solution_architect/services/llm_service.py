@@ -11,7 +11,13 @@ _DEFAULT_NVIDIA_REVIEW_MODEL = "meta/llama-3.3-70b-instruct"
 _NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 # Fallback documentado se deepseek-v4-pro saturar por capacidade (mesma família do
 # deepseek-v4-flash, que saturou no piloto do agente irmão AQuA-QE Product Manager):
-# openai/gpt-oss-120b, confirmado acessível na mesma conta NVIDIA usada no piloto do PM.
+# openai/gpt-oss-120b, confirmado acessível na mesma conta NVIDIA usada no piloto do PM —
+# mas com status "Preview"/sem garantia lá. Motivou avaliar a Cerebras como provedor
+# alternativo (ver LLM_PROVIDER=cerebras abaixo), onde gpt-oss-120b tem status "Production".
+
+_DEFAULT_CEREBRAS_MODEL = "gpt-oss-120b"
+_DEFAULT_CEREBRAS_REVIEW_MODEL = "zai-glm-4.7"
+_CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1"
 
 # Parâmetros de sampling recomendados pela NVIDIA por modelo NIM (build.nvidia.com/playground)
 # — chaveados por nome do modelo, não por papel (gerador/revisor), para continuar corretos se
@@ -44,28 +50,36 @@ def _nvidia_client() -> OpenAI:
     return OpenAI(base_url=_NVIDIA_BASE_URL, api_key=os.environ["NVIDIA_API_KEY"])
 
 
+def _cerebras_client() -> OpenAI:
+    return OpenAI(base_url=_CEREBRAS_BASE_URL, api_key=os.environ["CEREBRAS_API_KEY"])
+
+
 def generator_model() -> str:
-    """Resolve o modelo gerador conforme o provedor ativo (LLM_PROVIDER=ollama|nvidia)."""
+    """Resolve o modelo gerador conforme o provedor ativo (LLM_PROVIDER=ollama|nvidia|cerebras)."""
     if _provider() == "nvidia":
         return os.getenv("NVIDIA_MODEL", _DEFAULT_NVIDIA_MODEL)
+    if _provider() == "cerebras":
+        return os.getenv("CEREBRAS_MODEL", _DEFAULT_CEREBRAS_MODEL)
     return os.getenv("OLLAMA_MODEL", _DEFAULT_MODEL)
 
 
 def reviewer_model() -> str:
-    """Resolve o modelo revisor conforme o provedor ativo (LLM_PROVIDER=ollama|nvidia)."""
+    """Resolve o modelo revisor conforme o provedor ativo (LLM_PROVIDER=ollama|nvidia|cerebras)."""
     if _provider() == "nvidia":
         return os.getenv("NVIDIA_REVIEW_MODEL", _DEFAULT_NVIDIA_REVIEW_MODEL)
+    if _provider() == "cerebras":
+        return os.getenv("CEREBRAS_REVIEW_MODEL", _DEFAULT_CEREBRAS_REVIEW_MODEL)
     return os.getenv("OLLAMA_REVIEW_MODEL", _DEFAULT_REVIEW_MODEL)
 
 
 def _chat(modelo: str, messages: list[dict], json_mode: bool) -> str:
-    if _provider() == "nvidia":
-        kwargs = _nvidia_params(modelo)
+    provider = _provider()
+    if provider in ("nvidia", "cerebras"):
+        kwargs = _nvidia_params(modelo) if provider == "nvidia" else {}
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-        resposta = _nvidia_client().chat.completions.create(
-            model=modelo, messages=messages, **kwargs
-        )
+        cliente = _nvidia_client() if provider == "nvidia" else _cerebras_client()
+        resposta = cliente.chat.completions.create(model=modelo, messages=messages, **kwargs)
         return resposta.choices[0].message.content
 
     kwargs = {"format": "json"} if json_mode else {}
