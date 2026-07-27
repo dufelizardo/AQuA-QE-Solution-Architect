@@ -124,7 +124,8 @@ The same core principle from the Product Owner applies here: when review flags a
 
 ## 9. Technical stack
 
-- **Local LLM via Ollama** — `mistral` for generation, `phi4` as the independent reviewer. Deliberate choice of local models over cloud APIs, configurable via `OLLAMA_MODEL`/`OLLAMA_REVIEW_MODEL`/`OLLAMA_BASE_URL`.
+- **Local LLM via Ollama (default)** — `mistral` for generation, `phi4` as the independent reviewer. Deliberate choice of local models over cloud APIs, configurable via `OLLAMA_MODEL`/`OLLAMA_REVIEW_MODEL`/`OLLAMA_BASE_URL`.
+- **NVIDIA NIM provider pilot via toggle** (`LLM_PROVIDER=ollama|nvidia`) — same pilot already validated live in the sibling AQuA-QE Product Manager agent, replicated here: `build.nvidia.com` (OpenAI-compatible API) as an optional generator/reviewer alternative (`deepseek-ai/deepseek-v4-pro`/`meta/llama-3.3-70b-instruct`, confirmed working), preserving the two-independent-models principle. Ollama remains the unchanged default when `LLM_PROVIDER` is unset.
 - **`uv`** for dependencies — standalone project (own repository, outside the monorepo that originated it), with `httpx` and `python-dotenv` explicitly declared in `pyproject.toml`.
 - **Python 3.12+**, `src/` layout.
 - **No vector database/RAG in this phase** — `knowledge/methodology/` has only 3 files, small enough to fit directly in each skill's prompt without needing semantic search (see section 11 and `docs/agent/context_engineering.md`).

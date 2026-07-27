@@ -1,7 +1,5 @@
-import os
-
 from ..models import SolutionDesign
-from ..services.llm_service import complete_json
+from ..services.llm_service import complete_json, reviewer_model
 
 _SYSTEM = (
     "Você é um revisor crítico de Solution Design Documents, independente de "
@@ -14,12 +12,9 @@ _SYSTEM = (
     "justificativa vaga ou trade-offs não explicitados."
 )
 
-_DEFAULT_REVIEW_MODEL = "phi4"
-
-
 def review_solution_design(sdd: SolutionDesign) -> dict:
     """Revisa o Solution Design com um LLM diferente do gerador, avaliando coerência, rastreabilidade dos NFRs e explicitação de trade-offs."""
-    modelo = os.getenv("OLLAMA_REVIEW_MODEL", _DEFAULT_REVIEW_MODEL)
+    modelo = reviewer_model()
     nfrs = [
         {"categoria": n.category, "requisito": n.requirement, "rationale": n.rationale}
         for n in sdd.non_functional_requirements

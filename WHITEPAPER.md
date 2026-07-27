@@ -124,7 +124,8 @@ O mesmo princípio central do Product Owner se aplica aqui: quando a revisão ap
 
 ## 9. Stack técnico
 
-- **LLM local via Ollama** — `mistral` para geração, `phi4` como revisor independente. Escolha deliberada por modelos locais em vez de APIs de nuvem, configurável via `OLLAMA_MODEL`/`OLLAMA_REVIEW_MODEL`/`OLLAMA_BASE_URL`.
+- **LLM local via Ollama (padrão)** — `mistral` para geração, `phi4` como revisor independente. Escolha deliberada por modelos locais em vez de APIs de nuvem, configurável via `OLLAMA_MODEL`/`OLLAMA_REVIEW_MODEL`/`OLLAMA_BASE_URL`.
+- **Piloto de provedor NVIDIA NIM via toggle** (`LLM_PROVIDER=ollama|nvidia`) — mesmo piloto já validado ao vivo no agente irmão AQuA-QE Product Manager, replicado aqui: `build.nvidia.com` (API compatível com OpenAI) como alternativa opcional de gerador/revisor (`deepseek-ai/deepseek-v4-pro`/`meta/llama-3.3-70b-instruct`, confirmados funcionando), preservando o princípio de dois modelos independentes. Ollama continua o padrão inalterado quando `LLM_PROVIDER` não é definido.
 - **`uv`** para dependências — projeto standalone (repositório próprio, fora do monorepo que o originou), com `httpx` e `python-dotenv` declarados explicitamente em `pyproject.toml`.
 - **Python 3.12+**, `src/` layout.
 - **Sem banco vetorial/RAG nesta fase** — `knowledge/methodology/` tem apenas 3 arquivos, pequeno o suficiente para caber direto no prompt de cada skill sem necessidade de busca semântica (ver seção 11 e `docs/agent/context_engineering.md`).
