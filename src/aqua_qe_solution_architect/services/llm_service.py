@@ -133,12 +133,19 @@ def complete(prompt: str, system: str = "", model: str | None = None) -> str:
 
 
 def complete_json(prompt: str, system: str = "", model: str | None = None) -> dict:
-    """Envia um prompt ao provedor de LLM ativo e retorna a resposta já parseada como JSON."""
+    """Envia um prompt ao provedor de LLM ativo e retorna a resposta já parseada como JSON.
+
+    Usa `raw_decode` em vez de `json.loads` — aceita o primeiro objeto JSON válido e ignora
+    qualquer lixo depois dele (achado ao vivo: o Gemini às vezes devolve um objeto JSON válido
+    seguido de chaves de fechamento extras, mesmo com response_format=json_object). Continua
+    rejeitando qualquer coisa que não comece com JSON válido, inclusive JSON truncado.
+    """
     modelo = model or generator_model()
     messages = [{"role": "system", "content": system}] if system else []
     messages.append({"role": "user", "content": prompt})
     conteudo = _chat(modelo, messages, json_mode=True)
     try:
-        return json.loads(conteudo)
+        dados, _ = json.JSONDecoder().raw_decode(conteudo.strip())
+        return dados
     except json.JSONDecodeError as exc:
         raise ValueError(f"Resposta do LLM não é um JSON válido: {conteudo!r}") from exc

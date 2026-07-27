@@ -349,6 +349,38 @@ def test_complete_json_raises_on_invalid_json_regardless_of_provider(monkeypatch
         llm_service.complete_json("pergunta")
 
 
+def test_complete_json_tolera_chaves_extras_apos_json_valido(monkeypatch):
+    """Achado ao vivo: o Gemini às vezes devolve um objeto JSON válido seguido de chaves de
+    fechamento sobrando, mesmo com response_format=json_object. complete_json deve aceitar o
+    primeiro objeto válido e ignorar o lixo depois, em vez de rejeitar a resposta inteira."""
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+
+    class FakeOllamaClient:
+        def chat(self, model, messages, **kwargs):
+            return {"message": {"content": '{"titulo": "Exemplo"}\n}\n}'}}
+
+    monkeypatch.setattr(llm_service, "_ollama_client", lambda: FakeOllamaClient())
+
+    resultado = llm_service.complete_json("pergunta")
+
+    assert resultado == {"titulo": "Exemplo"}
+
+
+def test_complete_json_ainda_rejeita_json_truncado(monkeypatch):
+    """Regressão: JSON genuinamente incompleto (não apenas com lixo depois) continua
+    levantando ValueError — a tolerância é só para conteúdo extra após um objeto completo."""
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+
+    class FakeOllamaClient:
+        def chat(self, model, messages, **kwargs):
+            return {"message": {"content": '{"titulo": "Exemplo", "itens": ["a", "b"'}}
+
+    monkeypatch.setattr(llm_service, "_ollama_client", lambda: FakeOllamaClient())
+
+    with pytest.raises(ValueError):
+        llm_service.complete_json("pergunta")
+
+
 def test_explicit_model_argument_overrides_generator_model(monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     captured = {}
