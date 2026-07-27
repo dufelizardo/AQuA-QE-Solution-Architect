@@ -24,6 +24,11 @@ _CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1"
 # rápida) — mesma família Gemini nos dois papéis (Google AI Studio não oferece modelos
 # de terceiros como NVIDIA/Cerebras oferecem), mitigação de self-preference bias mais
 # fraca aqui do que nos outros provedores, mas ainda são checkpoints/tiers distintos.
+# Validado ao vivo com sucesso (ver CLAUDE.md) — dos quatro provedores testados, o único
+# que funcionou de ponta a ponta na primeira tentativa.
+# Fallbacks documentados pelo usuário, ainda não testados (trocar via GOOGLE_MODEL/
+# GOOGLE_REVIEW_MODEL se os defaults acima apresentarem problema): gemini-3.1-flash-lite,
+# gemma-4-26b, gemma-4-31b.
 _DEFAULT_GOOGLE_MODEL = "gemini-3.5-flash"
 _DEFAULT_GOOGLE_REVIEW_MODEL = "gemini-2.5-flash-lite"
 _GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
