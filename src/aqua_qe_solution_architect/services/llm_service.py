@@ -19,14 +19,13 @@ _DEFAULT_CEREBRAS_MODEL = "gpt-oss-120b"
 _DEFAULT_CEREBRAS_REVIEW_MODEL = "zai-glm-4.7"
 _CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1"
 
-# Sugestão a confirmar no Google AI Studio (aistudio.google.com) antes de confiar de
-# verdade — não validado ao vivo ainda. gemini-2.5-flash (gerador, rápido/barato) e
-# gemini-2.5-pro (revisor, mais forte em raciocínio/avaliação) — mesma família Gemini
-# nos dois papéis (Google AI Studio não oferece modelos de terceiros como NVIDIA/Cerebras
-# oferecem), mitigação de self-preference bias mais fraca aqui do que nos outros
-# provedores, mas ainda são checkpoints/tiers distintos.
-_DEFAULT_GOOGLE_MODEL = "gemini-2.5-flash"
-_DEFAULT_GOOGLE_REVIEW_MODEL = "gemini-2.5-pro"
+# Modelos confirmados pelo usuário no dashboard do Google AI Studio. gemini-3.5-flash
+# (gerador, checkpoint mais novo) e gemini-2.5-flash-lite (revisor, variante menor/mais
+# rápida) — mesma família Gemini nos dois papéis (Google AI Studio não oferece modelos
+# de terceiros como NVIDIA/Cerebras oferecem), mitigação de self-preference bias mais
+# fraca aqui do que nos outros provedores, mas ainda são checkpoints/tiers distintos.
+_DEFAULT_GOOGLE_MODEL = "gemini-3.5-flash"
+_DEFAULT_GOOGLE_REVIEW_MODEL = "gemini-2.5-flash-lite"
 _GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 # Parâmetros de sampling recomendados pela NVIDIA por modelo NIM (build.nvidia.com/playground)
