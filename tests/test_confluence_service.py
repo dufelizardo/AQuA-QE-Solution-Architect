@@ -96,6 +96,57 @@ def test_texto_para_storage_converte_headings_e_listas():
     assert "<p>Parágrafo solto.</p>" in resultado
 
 
+def test_texto_para_storage_converte_negrito_markdown():
+    resultado = confluence_service._texto_para_storage("- **Termo**: definição do termo")
+
+    assert resultado == "<ul><li><strong>Termo</strong>: definição do termo</li></ul>"
+
+
+def test_texto_para_storage_agrupa_lista_numerada_em_ol():
+    resultado = confluence_service._texto_para_storage("1. primeiro passo\n2. segundo passo")
+
+    assert resultado == "<ol><li>primeiro passo</li><li>segundo passo</li></ol>"
+
+
+def test_texto_para_storage_nao_mistura_ul_e_ol_na_mesma_lista():
+    resultado = confluence_service._texto_para_storage("- item solto\n1. passo 1\n2. passo 2")
+
+    assert resultado == (
+        "<ul><li>item solto</li></ul><ol><li>passo 1</li><li>passo 2</li></ol>"
+    )
+
+
+def test_texto_para_storage_converte_tabela_markdown():
+    texto = (
+        "## Componentes\n\n"
+        "| Componente | Responsabilidade |\n"
+        "|---|---|\n"
+        "| API Gateway | Rotear requisições |\n"
+        "| Serviço de Agendamento | Gerenciar consultas |\n\n"
+        "Texto depois da tabela"
+    )
+
+    resultado = confluence_service._texto_para_storage(texto)
+
+    assert resultado == (
+        "<h2>Componentes</h2>"
+        "<table><tbody>"
+        "<tr><th>Componente</th><th>Responsabilidade</th></tr>"
+        "<tr><td>API Gateway</td><td>Rotear requisições</td></tr>"
+        "<tr><td>Serviço de Agendamento</td><td>Gerenciar consultas</td></tr>"
+        "</tbody></table>"
+        "<p>Texto depois da tabela</p>"
+    )
+
+
+def test_texto_para_storage_tabela_sem_conteudo_depois_fecha_corretamente():
+    texto = "| a | b |\n|---|---|\n| 1 | 2 |"
+
+    resultado = confluence_service._texto_para_storage(texto)
+
+    assert resultado == "<table><tbody><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr></tbody></table>"
+
+
 def test_create_page_posts_body_with_ancestor_and_returns_id(monkeypatch):
     monkeypatch.setenv("JIRA_BASE_URL", "https://example.atlassian.net")
     monkeypatch.setenv("JIRA_EMAIL", "user@example.com")
