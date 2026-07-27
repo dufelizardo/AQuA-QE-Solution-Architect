@@ -59,6 +59,27 @@ def test_generator_model_respects_explicit_cerebras_model_env(monkeypatch):
     assert llm_service.generator_model() == "meu-modelo-customizado"
 
 
+def test_generator_model_uses_google_default_when_provider_is_google(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "google")
+    monkeypatch.delenv("GOOGLE_MODEL", raising=False)
+
+    assert llm_service.generator_model() == "gemini-2.5-flash"
+
+
+def test_reviewer_model_uses_google_default_when_provider_is_google(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "google")
+    monkeypatch.delenv("GOOGLE_REVIEW_MODEL", raising=False)
+
+    assert llm_service.reviewer_model() == "gemini-2.5-pro"
+
+
+def test_generator_model_respects_explicit_google_model_env(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "google")
+    monkeypatch.setenv("GOOGLE_MODEL", "meu-modelo-customizado")
+
+    assert llm_service.generator_model() == "meu-modelo-customizado"
+
+
 def test_complete_json_dispatches_to_ollama_by_default(monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     captured = {}
@@ -167,6 +188,41 @@ def test_complete_json_dispatches_to_cerebras_when_provider_is_cerebras(monkeypa
 
     assert resultado == {"ok": True}
     assert captured["model"] == "gpt-oss-120b"
+    assert captured["kwargs"] == {"response_format": {"type": "json_object"}}
+
+
+def test_complete_json_dispatches_to_google_when_provider_is_google(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "google")
+    captured = {}
+
+    class FakeMessage:
+        content = '{"ok": true}'
+
+    class FakeChoice:
+        message = FakeMessage()
+
+    class FakeCompletions:
+        def create(self, model, messages, **kwargs):
+            captured["model"] = model
+            captured["kwargs"] = kwargs
+
+            class FakeResponse:
+                choices = [FakeChoice()]
+
+            return FakeResponse()
+
+    class FakeChat:
+        completions = FakeCompletions()
+
+    class FakeGoogleClient:
+        chat = FakeChat()
+
+    monkeypatch.setattr(llm_service, "_google_client", lambda: FakeGoogleClient())
+
+    resultado = llm_service.complete_json("pergunta")
+
+    assert resultado == {"ok": True}
+    assert captured["model"] == "gemini-2.5-flash"
     assert captured["kwargs"] == {"response_format": {"type": "json_object"}}
 
 
