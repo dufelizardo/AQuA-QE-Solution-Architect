@@ -19,17 +19,20 @@ _DEFAULT_CEREBRAS_MODEL = "gpt-oss-120b"
 _DEFAULT_CEREBRAS_REVIEW_MODEL = "zai-glm-4.7"
 _CEREBRAS_BASE_URL = "https://api.cerebras.ai/v1"
 
-# Modelos confirmados pelo usuário no dashboard do Google AI Studio. gemini-3.5-flash
-# (gerador, checkpoint mais novo) e gemini-2.5-flash-lite (revisor, variante menor/mais
-# rápida) — mesma família Gemini nos dois papéis (Google AI Studio não oferece modelos
-# de terceiros como NVIDIA/Cerebras oferecem), mitigação de self-preference bias mais
-# fraca aqui do que nos outros provedores, mas ainda são checkpoints/tiers distintos.
-# Validado ao vivo com sucesso (ver CLAUDE.md) — dos quatro provedores testados, o único
-# que funcionou de ponta a ponta na primeira tentativa.
-# Fallbacks documentados pelo usuário, ainda não testados (trocar via GOOGLE_MODEL/
-# GOOGLE_REVIEW_MODEL se os defaults acima apresentarem problema): gemini-3.1-flash-lite,
-# gemma-4-26b, gemma-4-31b.
-_DEFAULT_GOOGLE_MODEL = "gemini-3.5-flash"
+# Modelos confirmados pelo usuário no dashboard do Google AI Studio. gemini-3.1-flash-lite
+# (gerador) e gemini-2.5-flash-lite (revisor, variante menor/mais rápida) — mesma família
+# Gemini nos dois papéis (Google AI Studio não oferece modelos de terceiros como
+# NVIDIA/Cerebras oferecem), mitigação de self-preference bias mais fraca aqui do que nos
+# outros provedores, mas ainda são checkpoints/tiers distintos.
+# Validado ao vivo com sucesso processando um Solution Design real de ponta a ponta (ver
+# CLAUDE.md) — dos quatro provedores testados nesta sessão, o único que funcionou na
+# primeira tentativa. gemini-3.5-flash foi o gerador testado inicialmente, mas o tier
+# gratuito tem quota de só 20 requisições/dia para esse modelo especificamente — esgotada
+# rapidamente pelo pipeline (~10 chamadas por geração). gemini-3.1-flash-lite não teve
+# esse problema no mesmo teste real.
+# Outros fallbacks documentados pelo usuário, ainda não testados (trocar via GOOGLE_MODEL/
+# GOOGLE_REVIEW_MODEL se os defaults acima apresentarem problema): gemma-4-26b, gemma-4-31b.
+_DEFAULT_GOOGLE_MODEL = "gemini-3.1-flash-lite"
 _DEFAULT_GOOGLE_REVIEW_MODEL = "gemini-2.5-flash-lite"
 _GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 # Sem isso, a resposta vem truncada em conteúdo real mais rico (achado ao vivo processando

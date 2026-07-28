@@ -28,7 +28,7 @@ The Solution Architect answers a question neither of the other two answers: **wh
 - **`src/aqua_qe_solution_architect/models/`** — the agent's data structures (`SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, `ArtifactStatus`).
 - **`src/aqua_qe_solution_architect/workflow/`** — orchestration of the skill sequence (`generate_solution_design`, `finalize_solution_design`).
 - **`src/aqua_qe_solution_architect/orchestrator/`** — single entry point (`handle_request`).
-- **`src/aqua_qe_solution_architect/services/`** — external integrations: `llm_service` (Ollama by default, generation/review; optional NVIDIA NIM pilot via `LLM_PROVIDER=nvidia` toggle — see Setup below), `jira_service` (read-only), `confluence_service` (read and write — see CLAUDE.md).
+- **`src/aqua_qe_solution_architect/services/`** — external integrations: `llm_service` (Ollama by default, generation/review; optional cloud provider pilot via `LLM_PROVIDER=nvidia|cerebras|google` toggle — see Setup below), `jira_service` (read-only), `confluence_service` (read and write — see CLAUDE.md).
 
 ## Setup
 
@@ -50,7 +50,7 @@ This is a standalone repository (not part of any monorepo) — `uv sync` here re
    ```bash
    cp .env.example .env
    ```
-   Optional: to pilot NVIDIA NIM (`build.nvidia.com`) instead of local Ollama for generation/review, set `LLM_PROVIDER=nvidia` and `NVIDIA_API_KEY` in `.env` (`NVIDIA_MODEL`/`NVIDIA_REVIEW_MODEL` have defaults, see `.env.example`). Leaving `LLM_PROVIDER` unset keeps the Ollama behavior above unchanged.
+   Optional: to pilot a cloud provider instead of local Ollama for generation/review, set `LLM_PROVIDER` to `nvidia`, `cerebras`, or `google` in `.env`, plus the matching `*_API_KEY` (model defaults for each are in `.env.example`). Of the three, **Google AI Studio** (`LLM_PROVIDER=google`) is the one validated live end-to-end on real content in this project; NVIDIA NIM proved unstable and Cerebras required account billing setup. Leaving `LLM_PROVIDER` unset keeps the Ollama behavior above unchanged.
 5. Run the test suite (fully mocked, no real calls to Ollama/Jira/Confluence) to confirm the setup:
    ```bash
    uv run pytest

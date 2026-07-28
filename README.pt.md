@@ -28,7 +28,7 @@ O Solution Architect responde a uma pergunta que nenhum dos outros dois responde
 - **`src/aqua_qe_solution_architect/models/`** — estruturas de dados do agente (`SolutionDesign`, `NonFunctionalRequirement`, `ArchitectureDecision`, `ArtifactStatus`).
 - **`src/aqua_qe_solution_architect/workflow/`** — orquestração da sequência de skills (`generate_solution_design`, `finalize_solution_design`).
 - **`src/aqua_qe_solution_architect/orchestrator/`** — ponto de entrada único (`handle_request`).
-- **`src/aqua_qe_solution_architect/services/`** — integrações externas: `llm_service` (Ollama por padrão, geração/revisão; piloto opcional de NVIDIA NIM via toggle `LLM_PROVIDER=nvidia` — ver Configuração abaixo), `jira_service` (apenas leitura), `confluence_service` (leitura e escrita — ver CLAUDE.md).
+- **`src/aqua_qe_solution_architect/services/`** — integrações externas: `llm_service` (Ollama por padrão, geração/revisão; piloto opcional de provedor em nuvem via toggle `LLM_PROVIDER=nvidia|cerebras|google` — ver Configuração abaixo), `jira_service` (apenas leitura), `confluence_service` (leitura e escrita — ver CLAUDE.md).
 
 ## Configuração
 
@@ -50,7 +50,7 @@ Este é um repositório independente (não faz parte de nenhum monorepo) — o `
    ```bash
    cp .env.example .env
    ```
-   Opcional: para pilotar NVIDIA NIM (`build.nvidia.com`) em vez de Ollama local para geração/revisão, defina `LLM_PROVIDER=nvidia` e `NVIDIA_API_KEY` no `.env` (`NVIDIA_MODEL`/`NVIDIA_REVIEW_MODEL` têm padrões, ver `.env.example`). Deixar `LLM_PROVIDER` sem definir mantém o comportamento com Ollama descrito acima inalterado.
+   Opcional: para pilotar um provedor em nuvem em vez de Ollama local para geração/revisão, defina `LLM_PROVIDER` como `nvidia`, `cerebras` ou `google` no `.env`, mais a `*_API_KEY` correspondente (defaults de modelo de cada um em `.env.example`). Dos três, **Google AI Studio** (`LLM_PROVIDER=google`) é o único validado ao vivo de ponta a ponta neste projeto, com conteúdo real; NVIDIA NIM se mostrou instável e Cerebras exigiu configuração de billing na conta. Deixar `LLM_PROVIDER` sem definir mantém o comportamento com Ollama descrito acima inalterado.
 5. Rode a suíte de testes (totalmente mockada, sem chamadas reais a Ollama/Jira/Confluence) para confirmar a configuração:
    ```bash
    uv run pytest

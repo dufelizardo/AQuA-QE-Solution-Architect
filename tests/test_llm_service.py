@@ -63,7 +63,7 @@ def test_generator_model_uses_google_default_when_provider_is_google(monkeypatch
     monkeypatch.setenv("LLM_PROVIDER", "google")
     monkeypatch.delenv("GOOGLE_MODEL", raising=False)
 
-    assert llm_service.generator_model() == "gemini-3.5-flash"
+    assert llm_service.generator_model() == "gemini-3.1-flash-lite"
 
 
 def test_reviewer_model_uses_google_default_when_provider_is_google(monkeypatch):
@@ -222,7 +222,7 @@ def test_complete_json_dispatches_to_google_when_provider_is_google(monkeypatch)
     resultado = llm_service.complete_json("pergunta")
 
     assert resultado == {"ok": True}
-    assert captured["model"] == "gemini-3.5-flash"
+    assert captured["model"] == "gemini-3.1-flash-lite"
     assert captured["kwargs"] == {"max_tokens": 8192, "response_format": {"type": "json_object"}}
 
 
