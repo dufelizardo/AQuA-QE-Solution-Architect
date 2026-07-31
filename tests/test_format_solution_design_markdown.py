@@ -73,7 +73,10 @@ def test_format_solution_design_markdown_includes_all_fields():
     assert "- indisponibilidade do sistema legado" in resultado
     assert "### ADR-001: Usar Microservices" in resultado
     assert "Alternativas consideradas: - Modular Monolith" in resultado
-    assert "> texto fonte completo" in resultado
+    assert "| Entidade de Domínio: Conta | trecho 1 |" in resultado
+    assert "| Fluxo Principal: Consulta de saldo | trecho 1 |" in resultado
+    assert "| NFR: performance | trecho 1 |" in resultado
+    assert "| ADR-001: Usar Microservices | trecho 1 |" in resultado
 
 
 def test_format_solution_design_markdown_omits_empty_sections_gracefully():
@@ -93,3 +96,4 @@ def test_format_solution_design_markdown_omits_empty_sections_gracefully():
     assert "## Fluxos Principais\n\n(nenhum)" in resultado
     assert "## Requisitos Não Funcionais\n\n(nenhum)" in resultado
     assert "## Decisões Arquiteturais (ADRs)\n\n(nenhum)" in resultado
+    assert "(nenhum artefato com trecho de origem individual registrado)" in resultado

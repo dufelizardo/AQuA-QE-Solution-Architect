@@ -63,6 +63,22 @@ def _decisoes_md(sdd: SolutionDesign) -> str:
     return "\n".join(linhas).rstrip()
 
 
+def _rastreabilidade_md(sdd: SolutionDesign) -> str:
+    """Tabela de/para: cada artefato gerado, ligado ao trecho da fonte que o originou (GR-SA-1)."""
+    linhas = ["| Artefato | Trecho de origem |", "|---|---|"]
+    for entidade in sdd.domain_model:
+        linhas.append(f"| Entidade de Domínio: {entidade.name} | {entidade.source_reference or '(não informado)'} |")
+    for fluxo in sdd.process_flows:
+        linhas.append(f"| Fluxo Principal: {fluxo.name} | {fluxo.source_reference or '(não informado)'} |")
+    for nfr in sdd.non_functional_requirements:
+        linhas.append(f"| NFR: {nfr.category} | {nfr.source_reference or '(não informado)'} |")
+    for decisao in sdd.decisions:
+        linhas.append(f"| {decisao.id}: {decisao.title} | {decisao.source_reference or '(não informado)'} |")
+    if len(linhas) == 2:
+        return "(nenhum artefato com trecho de origem individual registrado)"
+    return "\n".join(linhas)
+
+
 def format_solution_design_markdown(sdd: SolutionDesign) -> str:
     """Formata o Solution Design Document em Markdown."""
     return (
@@ -80,5 +96,5 @@ def format_solution_design_markdown(sdd: SolutionDesign) -> str:
         f"## Requisitos Não Funcionais\n\n{_nfrs_md(sdd)}\n\n"
         f"## Riscos Técnicos\n{_lista_md(sdd.technical_risks)}\n\n"
         f"## Decisões Arquiteturais (ADRs)\n\n{_decisoes_md(sdd)}\n\n"
-        f"## Rastreabilidade\n\n> {sdd.source_reference}\n"
+        f"## Rastreabilidade\n\n{_rastreabilidade_md(sdd)}\n"
     )
