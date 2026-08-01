@@ -4,7 +4,7 @@ Este arquivo orienta o Claude Code ao trabalhar neste repositório.
 
 ## O que é este projeto
 
-Agente que gera Solution Design Documents (padrão arquitetural, componentes, integrações, requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs) a partir de um PRD, documento de requisitos, ticket Jira ou página Confluence — com rastreabilidade obrigatória à fonte, validação automática e revisão humana no centro do ciclo. Ver `WHITEPAPER.md` (também em inglês: `WHITEPAPER.en.md`) para a visão completa.
+Agente que gera Solution Design Documents (padrão arquitetural, componentes, integrações, requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs) a partir de um PRD, documento de requisitos, ticket Jira ou página Confluence — com rastreabilidade obrigatória à fonte, validação automática e revisão humana no centro do ciclo. Ver `WHITEPAPER.md` (também em inglês: `WHITEPAPER.en.md`) para a visão completa, `docs/agent/` para a especificação completa e `docs/architecture/` para os diagramas (draw.io + SVG).
 
 Este é um **repositório standalone**, próprio, independente de qualquer monorepo — não assuma dependências herdadas de um workspace pai.
 
@@ -68,4 +68,5 @@ Entrada (.txt/Markdown/chat/Jira/Confluence)
 
 - `docs/agent/` — PRD, System Design, Agent Design, Rules, Guardrails, Persona, Objectives, Skills, Evaluation (a spec formal completa do agente).
 - `knowledge/methodology/` — os frameworks reais que fundamentam os critérios de qualidade (catálogo de padrões arquiteturais, ISO/IEC 25010, ADR) — nenhum critério do agente foi inventado à parte desses documentos.
+- `docs/architecture/` — diagramas visuais (draw.io + SVG) dos mesmos fluxos: arquitetura em camadas, fluxo do Solution Design, elaboração sequencial do SDD, ciclo de refinamento humano-no-loop e o pipeline completo com o handoff entre Product Manager, Solution Architect e Product Owner.
 - `WHITEPAPER.md` / `WHITEPAPER.en.md` — visão consolidada, inclui o que foi deliberadamente deixado fora da Fase 1 (seção 11).

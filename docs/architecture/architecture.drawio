@@ -1,0 +1,363 @@
+<mxfile host="65bd71144e">
+    <diagram id="camadas" name="1 - Arquitetura em camadas">
+        <mxGraphModel dx="23" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="1040" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="bandEntrada" value="Entrada" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="920" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="ent1" value="txt" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="24" y="35" width="161.6" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ent2" value="markdown" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="201.6" y="35" width="161.6" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ent3" value="chat" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="379.2" y="35" width="161.6" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ent4" value="jira" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="556.8" y="35" width="161.6" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="ent5" value="confluence" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="734.4" y="35" width="161.6" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandCLI" value="CLI" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="150" width="920" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="cli1" value="run.py&#xa;(--arquivo/--texto/--jira/--confluence mutuamente exclusivos, --refinar, --publicar-confluence/--atualizar-confluence)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="260" y="25" width="400" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandOrq" value="Orquestrador" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="240" width="920" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="orq1" value="orchestrator/solution_architect.py&#xa;handle_request(entrada)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="25" width="680" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandWorkflow" value="Workflow" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="340" width="920" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="wf1" value="workflow/generate_solution_design.py&#xa;generate_solution_design / finalize_solution_design / refine_and_finalize_solution_design" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="20" width="680" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandSkills" value="Skills" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="430" width="920" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="sk1" value="Sem LLM&#xa;read_text_file,&#xa;parse/format_chat_transcript,&#xa;read_jira_issue,&#xa;read_confluence_page,&#xa;get_confluence_publish_location,&#xa;create/update_confluence_page,&#xa;validate_solution_design,&#xa;format_solution_design_markdown" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="24" y="32" width="280" height="178" as="geometry"/>
+                </mxCell>
+                <mxCell id="sk2" value="LLM gerador (mistral)&#xa;extract_solution_context,&#xa;identify_architecture_pattern,&#xa;identify_components_and_integrations,&#xa;identify_candidate_integrations,&#xa;identify_domain_model,&#xa;identify_process_flows,&#xa;generate_non_functional_requirements,&#xa;identify_technical_risks,&#xa;generate_architecture_decisions,&#xa;generate_sdd_clarifying_questions,&#xa;refine_solution_design" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="32" width="280" height="178" as="geometry"/>
+                </mxCell>
+                <mxCell id="sk3" value="LLM revisor independente (phi4)&#xa;review_solution_design" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="616" y="32" width="280" height="178" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandModels" value="Models" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="670" width="920" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl1" value="SolutionDesign" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="24" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl2" value="NonFunctionalRequirement" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="172" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl3" value="ArchitectureDecision" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl4" value="DomainEntity" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="468" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl5" value="ProcessFlow" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="616" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="mdl6" value="ChatMessage" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=9;" parent="1" vertex="1">
+                    <mxGeometry x="764" y="35" width="132" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandServices" value="Services" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="780" width="920" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="svc1" value="llm_service" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="24" y="35" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="svc2" value="jira_service (leitura)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="35" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="svc3" value="confluence_service (leitura + escrita)" style="rounded=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="616" y="35" width="280" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="bandExternos" value="Sistemas externos" style="rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;fontStyle=1;verticalAlign=top;fontStyle=1;container=1;collapsible=0;;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="890" width="920" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="ext1" value="LLM ativo (LLM_PROVIDER):&#xa;Ollama local (mistral, phi4) --&#xa;padrao -- ou NVIDIA NIM /&#xa;Cerebras / Google (piloto)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="24" y="35" width="280" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="ext2" value="Jira Cloud&#xa;(REST API, leitura)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="35" width="280" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="ext3" value="Confluence Cloud&#xa;(REST API, leitura + escrita)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="616" y="35" width="280" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandEntrada" target="bandCLI" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandCLI" target="bandOrq" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandOrq" target="bandWorkflow" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandWorkflow" target="bandSkills" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="usa / produz" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandSkills" target="bandModels" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="bandServices" target="bandExternos" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" value="chama" style="edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.9;entryX=1;entryY=0.9;fontSize=11;" parent="1" source="bandSkills" target="bandServices" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="fluxosdd" name="2 - Fluxo do Solution Design">
+        <mxGraphModel dx="597" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="1280" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="f_n1" value="PRD / documento de requisitos /&#xa;ticket Jira / pagina Confluence" style="ellipse;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="40" width="340" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n2" value="generate_solution_design&#xa;(extract_solution_context -&gt; identify_architecture_pattern -&gt; ... -&gt; generate_architecture_decisions)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="130" width="340" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n3" value="validate_solution_design&#xa;(checklist Python puro)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="220" width="340" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_d1" value="Passa no&#xa;checklist?" style="rhombus;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="300" width="340" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_b1" value="status: pending_clarification&#xa;(review_notes preenchido com os motivos do checklist)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="315" width="280" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n4" value="review_solution_design&#xa;(LLM revisor independente - phi4)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="430" width="340" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_d2" value="Aprovado pelo&#xa;revisor?" style="rhombus;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="510" width="340" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_b2" value="Ver Diagrama 4:&#xa;Ciclo de refinamento&#xa;humano-no-loop" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="525" width="280" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_d3" value="Aceite humano&#xa;explicito?" style="rhombus;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="640" width="340" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_b3" value="Nao aceito:&#xa;permanece draft_validated /&#xa;pending_clarification" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="655" width="280" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n5" value="status: ACCEPTED" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="770" width="340" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n6" value="format_solution_design_markdown&#xa;-&gt; export local (--saida)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="850" width="340" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_d4" value="--publicar-confluence /&#xa;--atualizar-confluence&#xa;informado?" style="rhombus;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="930" width="340" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_n7" value="get_confluence_publish_location -&gt;&#xa;create_confluence_page / update_confluence_page&#xa;(pagina irma da fonte do PRD)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="1060" width="340" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="f_end" value="Fim&#xa;(Solution Design aceito segue como contexto&#xa;tecnico para o Product Owner)" style="ellipse;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="1160" width="340" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n1" target="f_n2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n2" target="f_n3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n3" target="f_d1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" value="nao" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d1" target="f_b1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d1" target="f_n4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n4" target="f_d2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" value="nao" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d2" target="f_b2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" value="sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d2" target="f_d3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" value="nao" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d3" target="f_b3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e10" value="sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d3" target="f_n5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n5" target="f_n6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n6" target="f_d4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e13" value="sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d4" target="f_n7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e14" value="nao" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_d4" target="f_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="f_n7" target="f_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="elaboracao" name="3 - Elaboracao sequencial do Solution Design">
+        <mxGraphModel dx="597" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="690" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="e_n1" value="extract_solution_context&#xa;(titulo + contexto)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="40" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n2" value="identify_architecture_pattern&#xa;(so entre os do catalogo)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="140" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_b1" value="GR-SA-1: padrao fora do&#xa;catalogo -&gt; campo fica &quot;&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="830" y="145" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n3" value="identify_components_and_integrations&#xa;(componentes por camada do padrao + integracoes citadas)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="240" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_b2" value="GR-SA-2: integracao sem&#xa;evidencia textual -&gt; lista vazia" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="830" y="245" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n4" value="identify_candidate_integrations&#xa;(sugestao de integracoes tipicas do dominio, rotulada como sugestao)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="30" y="240" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n5" value="identify_domain_model +&#xa;identify_process_flows&#xa;(entidades e fluxos, so se evidenciados)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="340" width="300" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n6" value="generate_non_functional_requirements +&#xa;identify_technical_risks&#xa;(NFR categorizado ISO/IEC 25010 + riscos)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="450" width="300" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_n7" value="generate_architecture_decisions&#xa;(ADRs com alternativas e trade-offs)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="460" y="560" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_b3" value="GR-SA-3/GR-SA-4: toda decisao&#xa;relevante vira ADR, com&#xa;alternativas explicitas quando&#xa;houver mais de uma opcao viavel" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;dashed=1;" parent="1" vertex="1">
+                    <mxGeometry x="830" y="555" width="260" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n1" target="e_n2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n2" target="e_b1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n2" target="e_n3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n3" target="e_b2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n1" target="e_n4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n3" target="e_n5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n5" target="e_n6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n6" target="e_n7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="e_n7" target="e_b3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="refinamento" name="4 - Ciclo de refinamento humano-no-loop">
+        <mxGraphModel dx="597" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1140" pageHeight="590" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="r_n1" value="review_notes preenchido&#xa;(checklist reprovou ou revisor reprovou)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="40" width="340" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="r_n2" value="generate_sdd_clarifying_questions&#xa;(LLM gerador transforma review_notes&#xa;em perguntas diretas e acionaveis)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="140" width="340" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="r_n3" value="Humano responde cada pergunta&#xa;(input() no terminal, run.py)" style="ellipse;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="250" width="340" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="r_n4" value="refine_solution_design&#xa;(reescreve so os campos que as respostas&#xa;abordam; preserva os demais como estao)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="350" width="340" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="r_n5" value="finalize_solution_design&#xa;(revalida: validate_solution_design -&gt;&#xa;review_solution_design de novo)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="460" width="340" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="r_b1" value="Cuidado herdado de um bug real&#xa;em refine_prd/refine_epic_metadata&#xa;(Product Owner): nunca perder&#xa;detalhe de campo nao abordado" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="355" width="260" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="r_n1" target="r_n2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="r_n2" target="r_n3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="r_n3" target="r_n4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="r_n4" target="r_n5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="r_n4" target="r_b1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="handoff" name="5 - Pipeline completo e handoff (Product Manager - Solution Architect - Product Owner)">
+        <mxGraphModel dx="597" dy="485" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="460" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="p_n1" value="AQuA-QE Product Manager&#xa;PRD aceito (format_prd_markdown)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="60" width="260" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_n2" value="AQuA-QE Solution Architect&#xa;Solution Design Document&#xa;(padrao, componentes, NFRs, riscos, ADRs)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="60" width="300" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_n3" value="AQuA-QE Product Owner&#xa;usa o SDD como contexto tecnico&#xa;ao detalhar Epicos/User Stories" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="760" y="60" width="260" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_n4" value="Confluence Cloud&#xa;(pagina irma do PRD de origem)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="220" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="p_b1" value="Sem chamada direta entre agentes --&#xa;a ponte e so o arquivo .md exportado&#xa;(ou a pagina do Confluence)" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="340" width="300" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" value="entrada (.md / Jira / Confluence)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="p_n1" target="p_n2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" value="contexto tecnico (.md)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="p_n2" target="p_n3" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" value="opcional, gated" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="p_n2" target="p_n4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" parent="1" source="p_n4" target="p_b1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
