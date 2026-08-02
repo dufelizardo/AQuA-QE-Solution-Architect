@@ -9,23 +9,28 @@ Agente que gera Solution Design Documents (padrão arquitetural, componentes, in
 **Qual o benefício**: padrão arquitetural escolhido só de um catálogo real e fechado (nunca inventado), NFRs/riscos sempre rastreáveis à fonte, ADRs com alternativas explícitas — um rascunho defensável, não um chute.
 **Como funciona (alto nível)**: PRD/fonte de requisitos → padrão → componentes/integrações → NFRs/riscos → ADRs → valida → revisa (um segundo LLM independente) → [refina] → aceite humano.
 
+## Exemplo
+
+**Entrada**: um PRD ou documento de requisitos (`.txt`/`.md`, Jira ou Confluence).
+
+**Saída** — um Solution Design Document, com estes campos reais (ver `knowledge/templates/solution_design.md`):
+
+- Contexto e problema
+- Padrão arquitetural escolhido (do catálogo fechado)
+- Justificativa do padrão
+- Componentes
+- Integrações
+- Requisitos não funcionais (categorizados conforme ISO/IEC 25010)
+- Riscos técnicos
+- Decisões arquiteturais (ADRs — com alternativas consideradas)
+
+## Estrutura
+
 O diagrama abaixo descreve a *metodologia de engenharia de agentes* usada para construir este agente — não o seu pipeline de execução (ver "Como funciona" acima):
 
 ```
 PRD → System Design → Agent Design → AI Specs/Rules/Skills → Context Engineering → Memory/MCP → Agents → Outputs
 ```
-
-## Relação com os agentes irmãos
-
-Este agente, o AQuA-QE Product Manager e o AQuA-QE Product Owner são **independentes** — repositórios separados, sem runtime compartilhado, sem chamada direta entre eles. O fluxo pretendido entre os três é:
-
-```
-Product Manager → PRD → Solution Architect → Solution Design Document → Product Owner → Épicos/Stories
-```
-
-O Solution Architect responde a uma pergunta que nenhum dos outros dois responde: **qual é a melhor solução técnica para atender este requisito de negócio?** Ele nunca gera nem edita um PRD (papel do Product Manager) e nunca gera Épicos/User Stories (papel do Product Owner) — consome um PRD já pronto e produz um único artefato técnico intermediário, o Solution Design Document, que o Product Owner poderia (em uma fase futura, não implementada) usar como entrada adicional.
-
-## Estrutura
 
 - **`docs/standards/`** — padrões da plataforma (como escrever um AI Spec, uma Rule, um PRD, etc.). Mudam pouco.
 - **`docs/agent/`** — especificação completa deste agente: PRD, System Design, Agent Design, AI Spec, Rules, Persona, Objectives, Output Schema, Guardrails, Evaluation, Prompt e o `agent_manifest.yaml` (manifesto do agente — inputs, outputs, skills, memory, rules).
@@ -36,6 +41,16 @@ O Solution Architect responde a uma pergunta que nenhum dos outros dois responde
 - **`src/aqua_qe_solution_architect/workflow/`** — orquestração da sequência de skills (`generate_solution_design`, `finalize_solution_design`).
 - **`src/aqua_qe_solution_architect/orchestrator/`** — ponto de entrada único (`handle_request`).
 - **`src/aqua_qe_solution_architect/services/`** — integrações externas: `llm_service` (Ollama por padrão, geração/revisão; piloto opcional de provedor em nuvem via toggle `LLM_PROVIDER=nvidia|cerebras|google` — ver Configuração abaixo), `jira_service` (apenas leitura), `confluence_service` (leitura e escrita — ver CLAUDE.md).
+
+## Relação com os agentes irmãos
+
+Este agente, o AQuA-QE Product Manager e o AQuA-QE Product Owner são **independentes** — repositórios separados, sem runtime compartilhado, sem chamada direta entre eles. O fluxo pretendido entre os três é:
+
+```
+Product Manager → PRD → Solution Architect → Solution Design Document → Product Owner → Épicos/Stories
+```
+
+O Solution Architect responde a uma pergunta que nenhum dos outros dois responde: **qual é a melhor solução técnica para atender este requisito de negócio?** Ele nunca gera nem edita um PRD (papel do Product Manager) e nunca gera Épicos/User Stories (papel do Product Owner) — consome um PRD já pronto e produz um único artefato técnico intermediário, o Solution Design Document, que o Product Owner poderia (em uma fase futura, não implementada) usar como entrada adicional.
 
 ## Configuração
 
