@@ -1,5 +1,7 @@
 # AQuA-QE Solution Architect
 
+![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue) ![Arquitetura: humano-no-loop](https://img.shields.io/badge/arquitetura-humano--no--loop-blueviolet)
+
 > Também disponível em [English](README.md).
 
 Agente que gera Solution Design Documents (padrão arquitetural, componentes, integrações, requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs) a partir de um PRD ou fonte de requisitos equivalente.
