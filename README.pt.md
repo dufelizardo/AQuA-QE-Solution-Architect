@@ -2,7 +2,14 @@
 
 > Também disponível em [English](README.md).
 
-Agente que gera Solution Design Documents (padrão arquitetural, componentes, integrações, requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs) a partir de um PRD ou fonte de requisitos equivalente — seguindo o fluxo de engenharia de agentes:
+Agente que gera Solution Design Documents (padrão arquitetural, componentes, integrações, requisitos não funcionais, riscos técnicos e decisões arquiteturais/ADRs) a partir de um PRD ou fonte de requisitos equivalente.
+
+**Qual problema resolve**: transforma uma PRD num primeiro rascunho de design técnico (padrão, componentes, NFRs, riscos, ADRs), em vez de partir de uma folha em branco.
+**Quem usa**: arquitetos de solução e tech leads que precisam de um ponto de partida rastreável para um design técnico.
+**Qual o benefício**: padrão arquitetural escolhido só de um catálogo real e fechado (nunca inventado), NFRs/riscos sempre rastreáveis à fonte, ADRs com alternativas explícitas — um rascunho defensável, não um chute.
+**Como funciona (alto nível)**: PRD/fonte de requisitos → padrão → componentes/integrações → NFRs/riscos → ADRs → valida → revisa (um segundo LLM independente) → [refina] → aceite humano.
+
+O diagrama abaixo descreve a *metodologia de engenharia de agentes* usada para construir este agente — não o seu pipeline de execução (ver "Como funciona" acima):
 
 ```
 PRD → System Design → Agent Design → AI Specs/Rules/Skills → Context Engineering → Memory/MCP → Agents → Outputs

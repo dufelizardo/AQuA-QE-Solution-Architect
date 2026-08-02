@@ -2,7 +2,14 @@
 
 > Também disponível em [Português](README.pt.md).
 
-Agent that generates Solution Design Documents (architecture pattern, components, integrations, non-functional requirements, technical risks and architecture decisions/ADRs) from a PRD or equivalent requirements source — following the agent engineering flow:
+Agent that generates Solution Design Documents (architecture pattern, components, integrations, non-functional requirements, technical risks and architecture decisions/ADRs) from a PRD or equivalent requirements source.
+
+**What problem it solves**: turns a PRD into a first-pass technical design (pattern, components, NFRs, risks, ADRs) instead of starting from a blank whiteboard.
+**Who uses it**: solution architects and tech leads who need a traceable starting point for a technical design.
+**What's the benefit**: architecture pattern chosen only from a real, closed catalog (never invented), NFRs/risks always traceable to the source, ADRs with explicit alternatives — a defensible draft, not a guess.
+**How it works (high level)**: PRD/requirements source → pattern → components/integrations → NFRs/risks → ADRs → validate → review (a second, independent LLM) → [refine] → human accepts.
+
+The diagram below describes the *agent engineering methodology* used to build this agent — not its runtime pipeline (see "How it works" above):
 
 ```
 PRD → System Design → Agent Design → AI Specs/Rules/Skills → Context Engineering → Memory/MCP → Agents → Outputs
